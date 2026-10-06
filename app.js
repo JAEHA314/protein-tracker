@@ -1,5 +1,5 @@
-const SUPABASE_URL = "여기에_기존_PROJECT_URL";
-const SUPABASE_KEY = "여기에_기존_PUBLISHABLE_KEY";
+const SUPABASE_URL = "https://plvgepenuwfwvhsmrwbj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_ly1XmYcdunJ7_ZlJkPVRxg_aqjWJDmd";
 
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = (id) => document.getElementById(id);
