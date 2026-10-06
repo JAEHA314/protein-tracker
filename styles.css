@@ -17,7 +17,7 @@
   --text-light: #a2a2a2;
 
   --line: #ddddda;
-  --line-dark: #c8c8c4;
+  --line-dark: #b9b9b5;
 
   --black: #171717;
   --white: #ffffff;
@@ -61,11 +61,16 @@ select {
 
 button {
   color: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button,
 select {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
 }
 
 .hidden {
@@ -74,51 +79,7 @@ select {
 
 
 /* =========================================================
-   LOGIN
-========================================================= */
-
-.login-screen {
-  min-height: 100vh;
-  min-height: 100dvh;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding:
-    max(32px, env(safe-area-inset-top))
-    var(--page-padding)
-    max(32px, env(safe-area-inset-bottom));
-}
-
-.login-card {
-  width: min(100%, 420px);
-
-  background: var(--surface);
-
-  padding: 30px 26px;
-
-  border-radius: var(--radius-large);
-}
-
-.login-card h1 {
-  margin: 6px 0 10px;
-
-  font-size: 30px;
-  line-height: 1.15;
-  letter-spacing: -0.04em;
-}
-
-.login-card form {
-  display: grid;
-  gap: 18px;
-
-  margin-top: 30px;
-}
-
-
-/* =========================================================
-   GENERAL TYPOGRAPHY
+   TYPOGRAPHY
 ========================================================= */
 
 h1,
@@ -154,7 +115,6 @@ h3 {
 
   font-size: 11px;
   font-weight: 700;
-
   letter-spacing: 0.13em;
 }
 
@@ -184,6 +144,46 @@ h3 {
 
 
 /* =========================================================
+   LOGIN
+========================================================= */
+
+.login-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    max(32px, env(safe-area-inset-top))
+    var(--page-padding)
+    max(32px, env(safe-area-inset-bottom));
+}
+
+.login-card {
+  width: min(100%, 420px);
+
+  padding: 30px 26px;
+
+  background: var(--surface);
+
+  border-radius: var(--radius-large);
+}
+
+.login-card h1 {
+  margin: 6px 0 10px;
+}
+
+.login-card form {
+  display: grid;
+  gap: 18px;
+
+  margin-top: 30px;
+}
+
+
+/* =========================================================
    APP LAYOUT
 ========================================================= */
 
@@ -200,7 +200,7 @@ h3 {
   margin: 0 auto;
 
   padding:
-    max(30px, env(safe-area-inset-top))
+    max(32px, env(safe-area-inset-top))
     var(--page-padding)
     calc(112px + env(safe-area-inset-bottom));
 }
@@ -223,14 +223,24 @@ h3 {
   margin-bottom: 32px;
 }
 
+.content-section {
+  margin-top: 34px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 16px;
+}
+
 
 /* =========================================================
    BUTTONS
 ========================================================= */
-
-button {
-  -webkit-tap-highlight-color: transparent;
-}
 
 .text-button {
   border: 0;
@@ -265,6 +275,10 @@ button {
   line-height: 1;
 }
 
+.round-button:disabled {
+  opacity: 0.3;
+}
+
 .button {
   min-height: 50px;
 
@@ -289,6 +303,8 @@ button {
 .button-plain {
   background: transparent;
   color: var(--text-secondary);
+
+  margin-top: 8px;
 }
 
 .full-width {
@@ -301,6 +317,8 @@ button {
 ========================================================= */
 
 .date-navigation {
+  position: relative;
+
   display: flex;
   align-items: center;
 
@@ -329,6 +347,8 @@ button {
 }
 
 .date-sub {
+  min-height: 14px;
+
   margin-top: 3px;
 
   color: var(--text-secondary);
@@ -339,6 +359,9 @@ button {
 
 .native-date-picker {
   position: absolute;
+
+  left: 50%;
+  bottom: 0;
 
   width: 1px;
   height: 1px;
@@ -353,13 +376,13 @@ button {
 ========================================================= */
 
 .protein-summary {
-  background: var(--surface);
+  margin-bottom: 34px;
 
   padding: 24px;
 
-  border-radius: var(--radius-large);
+  background: var(--surface);
 
-  margin-bottom: 34px;
+  border-radius: var(--radius-large);
 }
 
 .summary-top {
@@ -382,7 +405,6 @@ button {
   font-weight: 720;
 
   line-height: 1;
-
   letter-spacing: -0.06em;
 }
 
@@ -450,30 +472,12 @@ button {
 
 
 /* =========================================================
-   CONTENT SECTIONS
-========================================================= */
-
-.content-section {
-  margin-top: 34px;
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 16px;
-
-  margin-bottom: 16px;
-}
-
-
-/* =========================================================
    FAVORITES
 ========================================================= */
 
 .favorite-list {
   display: flex;
+
   gap: 9px;
 
   overflow-x: auto;
@@ -490,12 +494,12 @@ button {
 .favorite-chip {
   flex: 0 0 auto;
 
+  padding: 10px 14px;
+
   border: 1px solid var(--line);
   border-radius: 999px;
 
   background: var(--surface);
-
-  padding: 10px 14px;
 
   font-size: 13px;
   font-weight: 600;
@@ -511,11 +515,12 @@ button {
 
 
 /* =========================================================
-   FOOD LIST
+   FOOD RECORD LIST
 ========================================================= */
 
 .food-list {
   display: grid;
+
   gap: 10px;
 }
 
@@ -528,9 +533,9 @@ button {
 
   gap: 5px 14px;
 
-  background: var(--surface);
-
   padding: 17px 18px;
+
+  background: var(--surface);
 
   border-radius: var(--radius-medium);
 }
@@ -591,9 +596,9 @@ button {
 }
 
 .empty-state {
-  background: var(--surface);
-
   padding: 30px 22px;
+
+  background: var(--surface);
 
   border-radius: var(--radius-medium);
 
@@ -679,9 +684,9 @@ button {
 ========================================================= */
 
 .calendar-card {
-  background: var(--surface);
+  padding: 20px 14px 22px;
 
-  padding: 20px 16px 22px;
+  background: var(--surface);
 
   border-radius: var(--radius-large);
 }
@@ -701,13 +706,11 @@ button {
 .weekday-row,
 .calendar-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(7, 1fr);
+  grid-template-columns: repeat(7, 1fr);
 }
 
 .weekday-row {
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 
   color: var(--text-light);
 
@@ -716,12 +719,13 @@ button {
 }
 
 .calendar-grid {
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .calendar-day {
   position: relative;
 
+  min-width: 0;
   aspect-ratio: 1 / 1;
 
   display: flex;
@@ -731,50 +735,142 @@ button {
   border: 0;
   background: transparent;
 
-  border-radius: 50%;
-
-  font-size: 12px;
-}
-
-.calendar-day.today {
-  font-weight: 800;
-}
-
-.calendar-day.selected {
-  background: var(--black);
-  color: var(--white);
+  padding: 0;
 }
 
 .calendar-day.empty {
   pointer-events: none;
 }
 
-.day-progress {
-  position: absolute;
+.calendar-day:disabled {
+  opacity: 0.25;
+}
 
-  left: 50%;
-  bottom: 3px;
 
-  width: 4px;
-  height: 4px;
+/* ---------------------------------------------------------
+   CIRCULAR PROGRESS
 
-  transform: translateX(-50%);
+   JS sets:
+   --progress-angle: 0deg ~ 360deg
+--------------------------------------------------------- */
+
+.calendar-ring {
+  position: relative;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 40px;
 
   border-radius: 50%;
 
-  background: var(--line-dark);
+  background:
+    conic-gradient(
+      var(--text) 0deg,
+      var(--text) var(--progress-angle, 0deg),
+      var(--surface-soft) var(--progress-angle, 0deg),
+      var(--surface-soft) 360deg
+    );
+
+  transform: rotate(-90deg);
 }
 
-.calendar-day.complete .day-progress {
-  width: 6px;
-  height: 6px;
+.calendar-ring::after {
+  content: "";
 
-  background: var(--black);
+  position: absolute;
+
+  inset: 3px;
+
+  border-radius: 50%;
+
+  background: var(--surface);
 }
 
-.calendar-day.selected .day-progress {
-  background: var(--white);
+.calendar-ring-inner {
+  position: relative;
+
+  z-index: 1;
+
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  color: var(--text);
+
+  font-size: 12px;
+  font-weight: 500;
+
+  transform: rotate(90deg);
 }
+
+
+/* selected date */
+
+.calendar-day.selected .calendar-ring::after {
+  background: var(--text);
+}
+
+.calendar-day.selected .calendar-ring-inner {
+  color: var(--surface);
+
+  font-weight: 750;
+}
+
+
+/* today, without hiding progress */
+
+.calendar-day.today:not(.selected)
+.calendar-ring-inner {
+  font-weight: 800;
+}
+
+.calendar-day.today:not(.selected)
+.calendar-ring-inner::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  bottom: 4px;
+
+  width: 3px;
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  background: currentColor;
+
+  border-radius: 50%;
+}
+
+
+/* no protein record */
+
+.calendar-day.no-record .calendar-ring {
+  background: var(--surface-soft);
+}
+
+
+/* goal reached */
+
+.calendar-day.complete .calendar-ring {
+  background: var(--text);
+}
+
+
+/* ---------------------------------------------------------
+   MONTHLY SUMMARY
+--------------------------------------------------------- */
 
 .monthly-summary {
   display: grid;
@@ -786,9 +882,9 @@ button {
 }
 
 .monthly-summary > div {
-  background: var(--surface);
+  padding: 17px 8px;
 
-  padding: 17px 10px;
+  background: var(--surface);
 
   border-radius: var(--radius-medium);
 
@@ -816,9 +912,9 @@ button {
 
 .growth-summary,
 .growth-chart-section {
-  background: var(--surface);
-
   padding: 22px;
+
+  background: var(--surface);
 
   border-radius: var(--radius-large);
 }
@@ -827,21 +923,26 @@ button {
   margin-top: 14px;
 }
 
+
+/* ---------------------------------------------------------
+   BODY METRICS
+--------------------------------------------------------- */
+
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
 
   gap: 8px;
 
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .metric {
   min-width: 0;
 
-  background: var(--surface-soft);
+  padding: 15px 8px;
 
-  padding: 15px 10px;
+  background: var(--surface-soft);
 
   border-radius: var(--radius-small);
 
@@ -860,6 +961,7 @@ button {
 
 .metric strong {
   font-size: 20px;
+
   letter-spacing: -0.04em;
 }
 
@@ -871,32 +973,109 @@ button {
   font-size: 9px;
 }
 
-.segmented-control {
+
+/* ---------------------------------------------------------
+   BMI / BMR / PROTEIN RECOMMENDATION
+--------------------------------------------------------- */
+
+.body-analysis {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px;
+
+  margin-bottom: 18px;
+}
+
+.analysis-item {
+  min-width: 0;
+
+  padding: 16px;
 
   background: var(--surface-soft);
 
+  border-radius: var(--radius-small);
+}
+
+.analysis-item span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: var(--text-secondary);
+
+  font-size: 10px;
+}
+
+.analysis-item strong {
+  display: block;
+
+  font-size: 19px;
+
+  line-height: 1.2;
+
+  letter-spacing: -0.035em;
+}
+
+.analysis-item small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--text-secondary);
+
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.protein-recommendation {
+  grid-column: 1 / -1;
+
+  padding: 18px;
+}
+
+.protein-recommendation strong {
+  font-size: 22px;
+}
+
+
+/* ---------------------------------------------------------
+   CHART SELECTOR
+--------------------------------------------------------- */
+
+.segmented-control {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 0;
+
   padding: 4px;
 
-  border-radius: 12px;
+  margin-bottom: 22px;
 
-  margin-bottom: 20px;
+  background: var(--surface-soft);
+
+  border-radius: 12px;
 }
 
 .segmented-control button {
   min-width: 0;
+
+  overflow: hidden;
 
   border: 0;
   border-radius: 9px;
 
   background: transparent;
 
-  padding: 9px 5px;
+  padding: 9px 3px;
 
   color: var(--text-secondary);
 
-  font-size: 11px;
+  font-size: 10px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .segmented-control button.active {
@@ -907,22 +1086,34 @@ button {
   font-weight: 700;
 }
 
+
+/* ---------------------------------------------------------
+   CHART
+--------------------------------------------------------- */
+
 .chart-container {
   position: relative;
 
-  min-height: 220px;
+  width: 100%;
+  min-height: 245px;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  overflow: hidden;
 }
 
 #growthChart {
+  display: block;
+
   width: 100%;
-  max-height: 240px;
+  height: 245px;
 }
 
 .chart-empty {
+  margin: 0;
+
   color: var(--text-light);
 
   font-size: 12px;
@@ -933,7 +1124,21 @@ button {
 
 
 /* =========================================================
-   DIALOGS / SHEETS
+   PROFILE NOTE
+========================================================= */
+
+.profile-note {
+  margin: 2px 0 22px;
+
+  color: var(--text-secondary);
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   DIALOG
 ========================================================= */
 
 dialog {
@@ -957,7 +1162,6 @@ dialog {
   border-radius: 26px;
 
   background: var(--surface);
-
   color: var(--text);
 
   box-shadow:
@@ -1025,6 +1229,7 @@ dialog::backdrop {
 
 .field {
   display: grid;
+
   gap: 8px;
 
   margin-bottom: 18px;
@@ -1041,8 +1246,9 @@ dialog::backdrop {
 input,
 select {
   width: 100%;
-
   min-height: 49px;
+
+  padding: 0 14px;
 
   border: 1px solid var(--line);
   border-radius: 13px;
@@ -1050,17 +1256,14 @@ select {
   outline: none;
 
   background: var(--surface);
-
   color: var(--text);
-
-  padding: 0 14px;
 
   font-size: 15px;
 }
 
 input:focus,
 select:focus {
-  border-color: var(--black);
+  border-color: var(--text);
 }
 
 .form-error {
@@ -1071,7 +1274,6 @@ select:focus {
   font-size: 12px;
 }
 
-.two-column,
 .amount-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1084,7 +1286,7 @@ select:focus {
 }
 
 .input-with-unit input {
-  padding-right: 50px;
+  padding-right: 58px;
 }
 
 .input-with-unit > span {
@@ -1120,15 +1322,16 @@ select:focus {
 
 .search-box {
   display: grid;
+
   gap: 8px;
 
   margin-bottom: 26px;
 }
 
 .search-box input {
-  background: var(--surface-soft);
-
   border-color: transparent;
+
+  background: var(--surface-soft);
 }
 
 
@@ -1148,6 +1351,7 @@ select:focus {
 
 .food-search-results {
   display: grid;
+
   gap: 7px;
 }
 
@@ -1160,12 +1364,12 @@ select:focus {
 
   gap: 16px;
 
+  padding: 14px;
+
   border: 0;
   border-radius: 14px;
 
   background: var(--surface-soft);
-
-  padding: 14px;
 
   text-align: left;
 }
@@ -1229,6 +1433,8 @@ select:focus {
   width: 40px;
   height: 40px;
 
+  flex: 0 0 40px;
+
   border: 1px solid var(--line);
   border-radius: 50%;
 
@@ -1277,9 +1483,9 @@ select:focus {
 }
 
 .calculated-values > div {
-  background: var(--surface-soft);
-
   padding: 17px;
+
+  background: var(--surface-soft);
 
   border-radius: 14px;
 }
@@ -1313,8 +1519,39 @@ select:focus {
     padding: 21px;
   }
 
+  .calendar-card {
+    padding-left: 9px;
+    padding-right: 9px;
+  }
+
+  .calendar-ring {
+    width: 36px;
+    height: 36px;
+
+    flex-basis: 36px;
+  }
+
+  .calendar-ring::after {
+    inset: 3px;
+  }
+
+  .calendar-ring-inner {
+    width: 30px;
+    height: 30px;
+
+    font-size: 11px;
+  }
+
   .metric strong {
-    font-size: 18px;
+    font-size: 17px;
+  }
+
+  .analysis-item {
+    padding: 14px 12px;
+  }
+
+  .segmented-control button {
+    font-size: 9px;
   }
 
 }
@@ -1346,7 +1583,7 @@ select:focus {
 
 /* =========================================================
    DARK MODE
-   여전히 무채색만 사용
+   Still monochrome
 ========================================================= */
 
 @media (prefers-color-scheme: dark) {
