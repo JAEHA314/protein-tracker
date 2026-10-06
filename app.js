@@ -1,8 +1,13 @@
 const SUPABASE_URL = "https://plvgepenuwfwvhsmrwbj.supabase.co";
 const SUPABASE_KEY = "sb_publishable_ly1XmYcdunJ7_ZlJkPVRxg_aqjWJDmd";
 
-const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
 const $ = (id) => document.getElementById(id);
+
 
 /* =========================================================
    STATE
@@ -26,6 +31,8 @@ let selectedFood = null;
 let editingRecordId = null;
 
 let bodyRecords = [];
+let userProfile = null;
+
 let selectedChart = "muscle";
 
 
@@ -34,55 +41,83 @@ let selectedChart = "muscle";
 ========================================================= */
 
 function localDateKey(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
 
-  return `${y}-${m}-${d}`;
+  const day = String(
+    date.getDate()
+  ).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 function dateFromKey(key) {
-  const [y, m, d] = key.split("-").map(Number);
+  const [year, month, day] =
+    key.split("-").map(Number);
 
-  return new Date(y, m - 1, d);
+  return new Date(
+    year,
+    month - 1,
+    day
+  );
 }
 
 function todayKey() {
-  return localDateKey(new Date());
+  return localDateKey(
+    new Date()
+  );
 }
 
 function isToday(date) {
-  return localDateKey(date) === todayKey();
+  return (
+    localDateKey(date) ===
+    todayKey()
+  );
 }
 
 function isFuture(date) {
-  const compare = new Date(
+  const target = new Date(
     date.getFullYear(),
     date.getMonth(),
     date.getDate()
   );
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
 
-  return compare > today;
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  return target > today;
 }
 
 function formatSelectedDate(date) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "long",
-    day: "numeric",
-    weekday: "long"
-  }).format(date);
+  return new Intl.DateTimeFormat(
+    "ko-KR",
+    {
+      month: "long",
+      day: "numeric",
+      weekday: "long"
+    }
+  ).format(date);
 }
 
 function formatShortDate(key) {
-  const date = dateFromKey(key);
+  const date =
+    dateFromKey(key);
 
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "numeric",
-    day: "numeric"
-  }).format(date);
+  return new Intl.DateTimeFormat(
+    "ko-KR",
+    {
+      month: "numeric",
+      day: "numeric"
+    }
+  ).format(date);
 }
 
 
@@ -91,40 +126,76 @@ function formatShortDate(key) {
 ========================================================= */
 
 async function initializeApp() {
-  const {
-    data: { session }
-  } = await client.auth.getSession();
+  try {
+    const {
+      data: { session }
+    } =
+      await client.auth.getSession();
 
-  if (!session?.user) {
+    if (!session?.user) {
+      showLogin();
+      return;
+    }
+
+    currentUser =
+      session.user;
+
+    await openApp();
+
+  } catch (error) {
+    console.error(
+      "앱 초기화 실패:",
+      error
+    );
+
     showLogin();
-    return;
   }
-
-  currentUser = session.user;
-
-  await openApp();
 }
 
 function showLogin() {
-  $("loginScreen").classList.remove("hidden");
-  $("appScreen").classList.add("hidden");
+  $("loginScreen")
+    .classList
+    .remove("hidden");
+
+  $("appScreen")
+    .classList
+    .add("hidden");
 }
 
 async function openApp() {
-  $("loginScreen").classList.add("hidden");
-  $("appScreen").classList.remove("hidden");
+  $("loginScreen")
+    .classList
+    .add("hidden");
 
-  selectedDate = new Date();
-  calendarDate = new Date();
+  $("appScreen")
+    .classList
+    .remove("hidden");
 
-  $("datePicker").max = todayKey();
-  $("bodyRecordDate").max = todayKey();
+  selectedDate =
+    new Date();
+
+  calendarDate =
+    new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      1
+    );
+
+  $("datePicker").max =
+    todayKey();
+
+  $("bodyRecordDate").max =
+    todayKey();
+
+  $("profileBirthDate").max =
+    todayKey();
 
   await Promise.all([
     loadGoal(),
     loadFoodLibrary(),
     loadFavorites(),
-    loadBodyRecords()
+    loadBodyRecords(),
+    loadUserProfile()
   ]);
 
   await loadSelectedDateRecords();
@@ -139,338 +210,884 @@ async function openApp() {
    LOGIN
 ========================================================= */
 
-$("loginForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
+$("loginForm")
+  .addEventListener(
+    "submit",
+    async (event) => {
 
-  $("loginError").textContent = "";
+      event.preventDefault();
 
-  const email = $("loginEmail").value.trim();
-  const password = $("loginPassword").value;
+      $("loginError")
+        .textContent = "";
 
-  const { data, error } = await client.auth.signInWithPassword({
-    email,
-    password
-  });
+      const email =
+        $("loginEmail")
+          .value
+          .trim();
 
-  if (error) {
-    console.error(error);
+      const password =
+        $("loginPassword")
+          .value;
 
-    $("loginError").textContent =
-      "이메일 또는 비밀번호를 확인해주세요.";
+      const {
+        data,
+        error
+      } =
+        await client.auth
+          .signInWithPassword({
+            email,
+            password
+          });
 
-    return;
-  }
+      if (error) {
+        console.error(error);
 
-  currentUser = data.user;
+        $("loginError")
+          .textContent =
+          "이메일 또는 비밀번호를 확인해주세요.";
 
-  await openApp();
-});
+        return;
+      }
 
-$("logoutBtn").addEventListener("click", async () => {
-  await client.auth.signOut();
+      currentUser =
+        data.user;
 
-  currentUser = null;
-  records = [];
+      await openApp();
+    }
+  );
 
-  $("profileDialog").close();
 
-  showLogin();
-});
+$("logoutBtn")
+  .addEventListener(
+    "click",
+    async () => {
+
+      await client.auth
+        .signOut();
+
+      currentUser = null;
+
+      records = [];
+      bodyRecords = [];
+      userProfile = null;
+
+      $("profileDialog")
+        .close();
+
+      showLogin();
+    }
+  );
 
 
 /* =========================================================
    BOTTOM NAVIGATION
 ========================================================= */
 
-document.querySelectorAll(".nav-item").forEach((button) => {
-  button.addEventListener("click", async () => {
-    const view = button.dataset.view;
+document
+  .querySelectorAll(".nav-item")
+  .forEach((button) => {
 
-    document.querySelectorAll(".nav-item").forEach((item) => {
-      item.classList.toggle("active", item === button);
-    });
+    button.addEventListener(
+      "click",
+      async () => {
 
-    document.querySelectorAll(".view").forEach((section) => {
-      section.classList.remove("active");
-    });
+        const view =
+          button.dataset.view;
 
-    if (view === "today") {
-      $("todayView").classList.add("active");
-    }
+        document
+          .querySelectorAll(
+            ".nav-item"
+          )
+          .forEach((item) => {
 
-    if (view === "calendar") {
-      $("calendarView").classList.add("active");
+            item.classList.toggle(
+              "active",
+              item === button
+            );
 
-      calendarDate = new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        1
-      );
+          });
 
-      await renderCalendar();
-    }
+        document
+          .querySelectorAll(".view")
+          .forEach((section) => {
 
-    if (view === "growth") {
-      $("growthView").classList.add("active");
+            section.classList
+              .remove("active");
 
-      await loadBodyRecords();
-      renderGrowth();
-    }
+          });
+
+
+        if (view === "today") {
+          $("todayView")
+            .classList
+            .add("active");
+        }
+
+
+        if (view === "calendar") {
+          $("calendarView")
+            .classList
+            .add("active");
+
+          calendarDate =
+            new Date(
+              selectedDate.getFullYear(),
+              selectedDate.getMonth(),
+              1
+            );
+
+          await renderCalendar();
+        }
+
+
+        if (view === "growth") {
+          $("growthView")
+            .classList
+            .add("active");
+
+          await Promise.all([
+            loadBodyRecords(),
+            loadUserProfile()
+          ]);
+
+          renderGrowth();
+        }
+
+      }
+    );
+
   });
-});
 
 
 /* =========================================================
-   PROTEIN GOAL
+   GOAL
 ========================================================= */
 
 async function loadGoal() {
-  const { data, error } = await client
-    .from("user_settings")
-    .select("protein_goal")
-    .eq("user_id", currentUser.id)
-    .maybeSingle();
+  const {
+    data,
+    error
+  } =
+    await client
+      .from("user_settings")
+      .select("protein_goal")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
 
   if (error) {
-    console.error("목표 불러오기 실패:", error);
+    console.error(
+      "목표 불러오기 실패:",
+      error
+    );
+
     return;
   }
 
+
   if (!data) {
-    const { error: insertError } = await client
-      .from("user_settings")
-      .insert({
-        user_id: currentUser.id,
-        protein_goal: 75
-      });
+    const {
+      error: insertError
+    } =
+      await client
+        .from("user_settings")
+        .insert({
+          user_id:
+            currentUser.id,
+
+          protein_goal: 75
+        });
 
     if (insertError) {
-      console.error("기본 목표 생성 실패:", insertError);
+      console.error(
+        "기본 목표 생성 실패:",
+        insertError
+      );
     }
 
     proteinGoal = 75;
+
     return;
   }
 
-  proteinGoal = Number(data.protein_goal);
+  proteinGoal =
+    Number(
+      data.protein_goal
+    );
 }
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+async function loadUserProfile() {
+  const {
+    data,
+    error
+  } =
+    await client
+      .from("user_profile")
+      .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .maybeSingle();
+
+  if (error) {
+    console.error(
+      "프로필 불러오기 실패:",
+      error
+    );
+
+    userProfile = null;
+
+    return;
+  }
+
+  userProfile =
+    data || null;
+}
+
+
+$("profileBtn")
+  .addEventListener(
+    "click",
+    openProfile
+  );
+
+$("settingsBtn")
+  .addEventListener(
+    "click",
+    openProfile
+  );
+
+
+$("closeProfileDialog")
+  .addEventListener(
+    "click",
+    () => {
+
+      $("profileDialog")
+        .close();
+
+    }
+  );
+
+
+async function openProfile() {
+  await loadUserProfile();
+
+  $("profileSex").value =
+    userProfile?.sex || "";
+
+  $("profileBirthDate").value =
+    userProfile?.birth_date || "";
+
+  $("profileHeight").value =
+    userProfile?.height_cm ?? "";
+
+  $("profileProteinGoal").value =
+    proteinGoal;
+
+  $("profileDialog")
+    .showModal();
+}
+
+
+$("profileForm")
+  .addEventListener(
+    "submit",
+    async (event) => {
+
+      event.preventDefault();
+
+      const sex =
+        $("profileSex").value ||
+        null;
+
+      const birthDate =
+        $("profileBirthDate")
+          .value ||
+        null;
+
+      const height =
+        optionalNumber(
+          $("profileHeight").value
+        );
+
+      const goal =
+        Number(
+          $("profileProteinGoal")
+            .value
+        );
+
+
+      if (
+        !Number.isFinite(goal) ||
+        goal <= 0
+      ) {
+        return;
+      }
+
+
+      const [
+        profileResult,
+        goalResult
+      ] =
+        await Promise.all([
+
+          client
+            .from("user_profile")
+            .upsert(
+              {
+                user_id:
+                  currentUser.id,
+
+                sex,
+
+                birth_date:
+                  birthDate,
+
+                height_cm:
+                  height,
+
+                updated_at:
+                  new Date()
+                    .toISOString()
+              },
+              {
+                onConflict:
+                  "user_id"
+              }
+            ),
+
+
+          client
+            .from("user_settings")
+            .upsert(
+              {
+                user_id:
+                  currentUser.id,
+
+                protein_goal:
+                  goal,
+
+                updated_at:
+                  new Date()
+                    .toISOString()
+              },
+              {
+                onConflict:
+                  "user_id"
+              }
+            )
+
+        ]);
+
+
+      if (
+        profileResult.error ||
+        goalResult.error
+      ) {
+
+        console.error(
+          profileResult.error ||
+          goalResult.error
+        );
+
+        alert(
+          "정보를 저장하지 못했습니다."
+        );
+
+        return;
+      }
+
+
+      proteinGoal = goal;
+
+      await loadUserProfile();
+
+      $("profileDialog")
+        .close();
+
+      renderToday();
+      renderGrowth();
+    }
+  );
 
 
 /* =========================================================
    DATE NAVIGATION
 ========================================================= */
 
-$("prevDateBtn").addEventListener("click", async () => {
-  selectedDate.setDate(selectedDate.getDate() - 1);
+$("prevDateBtn")
+  .addEventListener(
+    "click",
+    async () => {
 
-  selectedDate = new Date(selectedDate);
+      const previous =
+        new Date(selectedDate);
 
-  await loadSelectedDateRecords();
-  renderToday();
-});
+      previous.setDate(
+        previous.getDate() - 1
+      );
 
-$("nextDateBtn").addEventListener("click", async () => {
-  const next = new Date(selectedDate);
+      selectedDate =
+        previous;
 
-  next.setDate(next.getDate() + 1);
+      await loadSelectedDateRecords();
 
-  if (isFuture(next)) return;
+      renderToday();
+    }
+  );
 
-  selectedDate = next;
 
-  await loadSelectedDateRecords();
-  renderToday();
-});
+$("nextDateBtn")
+  .addEventListener(
+    "click",
+    async () => {
 
-$("datePickerBtn").addEventListener("click", () => {
-  $("datePicker").value = localDateKey(selectedDate);
+      const next =
+        new Date(selectedDate);
 
-  if (typeof $("datePicker").showPicker === "function") {
-    $("datePicker").showPicker();
-  } else {
-    $("datePicker").click();
-  }
-});
+      next.setDate(
+        next.getDate() + 1
+      );
 
-$("datePicker").addEventListener("change", async () => {
-  if (!$("datePicker").value) return;
+      if (
+        isFuture(next)
+      ) {
+        return;
+      }
 
-  const date = dateFromKey($("datePicker").value);
+      selectedDate =
+        next;
 
-  if (isFuture(date)) return;
+      await loadSelectedDateRecords();
 
-  selectedDate = date;
+      renderToday();
+    }
+  );
 
-  await loadSelectedDateRecords();
-  renderToday();
-});
+
+$("datePickerBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      $("datePicker").value =
+        localDateKey(
+          selectedDate
+        );
+
+      if (
+        typeof $("datePicker")
+          .showPicker ===
+        "function"
+      ) {
+
+        $("datePicker")
+          .showPicker();
+
+      } else {
+
+        $("datePicker")
+          .click();
+
+      }
+
+    }
+  );
+
+
+$("datePicker")
+  .addEventListener(
+    "change",
+    async () => {
+
+      if (
+        !$("datePicker").value
+      ) {
+        return;
+      }
+
+      const date =
+        dateFromKey(
+          $("datePicker").value
+        );
+
+      if (
+        isFuture(date)
+      ) {
+        return;
+      }
+
+      selectedDate =
+        date;
+
+      await loadSelectedDateRecords();
+
+      renderToday();
+    }
+  );
 
 
 /* =========================================================
-   RECORDS
+   PROTEIN RECORDS
 ========================================================= */
 
 async function loadSelectedDateRecords() {
-  const { data, error } = await client
-    .from("protein_records")
-    .select("*")
-    .eq("record_date", localDateKey(selectedDate))
-    .order("created_at", {
-      ascending: true
-    });
+  const {
+    data,
+    error
+  } =
+    await client
+      .from("protein_records")
+      .select("*")
+      .eq(
+        "record_date",
+        localDateKey(
+          selectedDate
+        )
+      )
+      .order(
+        "created_at",
+        {
+          ascending: true
+        }
+      );
 
   if (error) {
-    console.error("기록 불러오기 실패:", error);
+    console.error(
+      "기록 불러오기 실패:",
+      error
+    );
+
     records = [];
+
     return;
   }
 
-  records = data || [];
+  records =
+    data || [];
 }
 
+
 function renderToday() {
-  $("selectedDateLabel").textContent =
-    formatSelectedDate(selectedDate);
+  $("selectedDateLabel")
+    .textContent =
+    formatSelectedDate(
+      selectedDate
+    );
 
-  $("selectedDateSub").textContent =
-    isToday(selectedDate) ? "오늘" : "";
+  $("selectedDateSub")
+    .textContent =
+    isToday(selectedDate)
+      ? "오늘"
+      : "";
 
-  $("nextDateBtn").disabled = isToday(selectedDate);
+  $("nextDateBtn").disabled =
+    isToday(selectedDate);
 
-  const total = records.reduce(
-    (sum, record) => sum + Number(record.protein),
-    0
-  );
+
+  const total =
+    records.reduce(
+      (sum, record) =>
+        sum +
+        Number(
+          record.protein
+        ),
+      0
+    );
+
 
   const percent =
     proteinGoal > 0
-      ? (total / proteinGoal) * 100
+      ? (
+          total /
+          proteinGoal
+        ) * 100
       : 0;
 
-  $("totalProtein").textContent = total.toFixed(1);
 
-  $("goalText").textContent =
-    Number(proteinGoal).toFixed(
-      Number(proteinGoal) % 1 === 0 ? 0 : 1
+  $("totalProtein")
+    .textContent =
+    total.toFixed(1);
+
+
+  $("goalText")
+    .textContent =
+    formatNumber(
+      proteinGoal
     );
 
-  $("goalPercent").textContent =
+
+  $("goalPercent")
+    .textContent =
     `${Math.round(percent)}%`;
 
-  $("progressBar").style.width =
-    `${Math.min(percent, 100)}%`;
 
-  if (total >= proteinGoal) {
-    $("remainingText").textContent =
-      `목표 +${(total - proteinGoal).toFixed(1)}g`;
+  $("progressBar")
+    .style
+    .width =
+    `${Math.min(
+      percent,
+      100
+    )}%`;
+
+
+  if (
+    total >= proteinGoal
+  ) {
+
+    $("remainingText")
+      .textContent =
+      `목표 +${(
+        total -
+        proteinGoal
+      ).toFixed(1)}g`;
+
   } else {
-    $("remainingText").textContent =
-      `${(proteinGoal - total).toFixed(1)}g 남음`;
+
+    $("remainingText")
+      .textContent =
+      `${(
+        proteinGoal -
+        total
+      ).toFixed(1)}g 남음`;
+
   }
+
 
   renderFoodRecords();
 }
 
+
 function renderFoodRecords() {
-  const list = $("foodList");
+  const list =
+    $("foodList");
 
   list.innerHTML = "";
 
-  $("emptyState").style.display =
-    records.length ? "none" : "block";
 
-  records.forEach((item) => {
-    const element = document.createElement("div");
+  $("emptyState")
+    .style
+    .display =
+    records.length
+      ? "none"
+      : "block";
 
-    element.className = "food-item";
 
-    element.innerHTML = `
-      <div class="food-name">
-        ${escapeHtml(item.food_name)}
-      </div>
+  records.forEach(
+    (item) => {
 
-      <div class="food-meta">
-        ${formatNumber(item.amount)}
-        ${escapeHtml(item.unit)}
-      </div>
+      const element =
+        document
+          .createElement("div");
 
-      <div class="food-protein">
-        ${Number(item.protein).toFixed(1)}g
-      </div>
+      element.className =
+        "food-item";
 
-      <div class="record-actions">
-        <button
-          type="button"
-          class="edit-btn"
-          data-id="${item.id}">
-          수정
-        </button>
 
-        <button
-          type="button"
-          class="delete-btn"
-          data-id="${item.id}">
-          삭제
-        </button>
-      </div>
-    `;
+      element.innerHTML = `
+        <div class="food-name">
+          ${escapeHtml(
+            item.food_name
+          )}
+        </div>
 
-    list.appendChild(element);
-  });
+        <div class="food-meta">
+          ${formatNumber(
+            item.amount
+          )}
+          ${escapeHtml(
+            item.unit
+          )}
+        </div>
 
-  document.querySelectorAll(".edit-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      startRecordEdit(button.dataset.id);
-    });
-  });
+        <div class="food-protein">
+          ${Number(
+            item.protein
+          ).toFixed(1)}g
+        </div>
 
-  document.querySelectorAll(".delete-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      deleteRecord(button.dataset.id);
-    });
-  });
+        <div class="record-actions">
+
+          <button
+            type="button"
+            class="edit-btn"
+            data-id="${item.id}"
+          >
+            수정
+          </button>
+
+          <button
+            type="button"
+            class="delete-btn"
+            data-id="${item.id}"
+          >
+            삭제
+          </button>
+
+        </div>
+      `;
+
+
+      list.appendChild(
+        element
+      );
+    }
+  );
+
+
+  document
+    .querySelectorAll(
+      ".edit-btn"
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            startRecordEdit(
+              button.dataset.id
+            );
+
+          }
+        );
+
+      }
+    );
+
+
+  document
+    .querySelectorAll(
+      ".delete-btn"
+    )
+    .forEach(
+      (button) => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            deleteRecord(
+              button.dataset.id
+            );
+
+          }
+        );
+
+      }
+    );
 }
 
+
 async function deleteRecord(id) {
-  if (!confirm("이 기록을 삭제할까요?")) return;
+  const confirmed =
+    confirm(
+      "이 기록을 삭제할까요?"
+    );
 
-  const { error } = await client
-    .from("protein_records")
-    .delete()
-    .eq("id", id);
-
-  if (error) {
-    console.error(error);
-    alert("삭제하지 못했습니다.");
+  if (!confirmed) {
     return;
   }
 
+
+  const {
+    error
+  } =
+    await client
+      .from("protein_records")
+      .delete()
+      .eq(
+        "id",
+        id
+      );
+
+
+  if (error) {
+    console.error(error);
+
+    alert(
+      "삭제하지 못했습니다."
+    );
+
+    return;
+  }
+
+
   await loadSelectedDateRecords();
+
   renderToday();
 }
 
+
 function startRecordEdit(id) {
-  const item = records.find((record) => record.id === id);
+  const item =
+    records.find(
+      (record) =>
+        record.id === id
+    );
 
-  if (!item) return;
+  if (!item) {
+    return;
+  }
 
-  editingRecordId = id;
 
-  $("foodDialogTitle").textContent = "음식 수정";
+  resetFoodDialog();
+
+  editingRecordId =
+    id;
+
+
+  $("foodDialogTitle")
+    .textContent =
+    "음식 수정";
+
+
+  $("manualFoodName")
+    .value =
+    item.food_name;
+
+  $("manualAmount")
+    .value =
+    item.amount;
+
+  $("manualUnit")
+    .value =
+    item.unit;
+
+  $("manualProtein")
+    .value =
+    item.protein;
+
+
+  $("saveAsMyFood")
+    .checked =
+    false;
+
+  $("saveAsMyFood")
+    .closest(".check-row")
+    .classList
+    .add("hidden");
+
+
+  $("manualFoodSaveBtn")
+    .textContent =
+    "수정 완료";
+
 
   showManualStep();
 
-  $("manualFoodName").value = item.food_name;
-  $("manualAmount").value = item.amount;
-  $("manualUnit").value = item.unit;
-  $("manualProtein").value = item.protein;
-
-  $("saveAsMyFood").checked = false;
-  $("saveAsMyFood").parentElement.classList.add("hidden");
-
-  $("manualFoodSaveBtn").textContent = "수정 완료";
-
-  $("foodDialog").showModal();
+  $("foodDialog")
+    .showModal();
 }
 
 
@@ -479,59 +1096,112 @@ function startRecordEdit(id) {
 ========================================================= */
 
 async function loadFoodLibrary() {
-  const [databaseResult, userResult] = await Promise.all([
-    client
-      .from("food_database")
-      .select("*")
-      .order("food_name"),
+  const [
+    databaseResult,
+    userResult
+  ] =
+    await Promise.all([
 
-    client
-      .from("user_foods")
-      .select("*")
-      .eq("user_id", currentUser.id)
-      .order("food_name")
-  ]);
+      client
+        .from("food_database")
+        .select("*")
+        .order("food_name"),
 
-  if (databaseResult.error) {
+      client
+        .from("user_foods")
+        .select("*")
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+        .order("food_name")
+
+    ]);
+
+
+  if (
+    databaseResult.error
+  ) {
     console.error(
       "기본 음식 불러오기 실패:",
       databaseResult.error
     );
   }
 
-  if (userResult.error) {
+
+  if (
+    userResult.error
+  ) {
     console.error(
       "내 음식 불러오기 실패:",
       userResult.error
     );
   }
 
-  databaseFoods = (databaseResult.data || []).map((food) => ({
-    ...food,
-    source_type: "database"
-  }));
 
-  userFoods = (userResult.data || []).map((food) => ({
-    ...food,
-    source_type: "user"
-  }));
+  databaseFoods =
+    (
+      databaseResult.data ||
+      []
+    ).map(
+      (food) => ({
+        ...food,
+        source_type:
+          "database"
+      })
+    );
+
+
+  userFoods =
+    (
+      userResult.data ||
+      []
+    ).map(
+      (food) => ({
+        ...food,
+        source_type:
+          "user"
+      })
+    );
 }
+
 
 function allFoods() {
-  return [...userFoods, ...databaseFoods];
+  return [
+    ...userFoods,
+    ...databaseFoods
+  ];
 }
 
-function renderFoodSearch(query = "") {
+
+function renderFoodSearch(
+  query = ""
+) {
   const normalized =
-    query.trim().toLowerCase();
+    query
+      .trim()
+      .toLowerCase();
 
-  const foods = allFoods().filter((food) =>
-    food.food_name.toLowerCase().includes(normalized)
-  );
 
-  const resultBox = $("foodSearchResults");
+  const foods =
+    allFoods()
+      .filter(
+        (food) =>
+          String(
+            food.food_name
+          )
+            .toLowerCase()
+            .includes(
+              normalized
+            )
+      );
+
+
+  const resultBox =
+    $("foodSearchResults");
 
   resultBox.innerHTML = "";
+
 
   if (!foods.length) {
     resultBox.innerHTML = `
@@ -543,45 +1213,86 @@ function renderFoodSearch(query = "") {
     return;
   }
 
-  foods.forEach((food) => {
-    resultBox.appendChild(
-      createFoodResultButton(food)
-    );
-  });
+
+  foods.forEach(
+    (food) => {
+
+      resultBox.appendChild(
+        createFoodResultButton(
+          food
+        )
+      );
+
+    }
+  );
 }
 
-function createFoodResultButton(food) {
-  const button = document.createElement("button");
 
-  button.type = "button";
-  button.className = "food-result";
+function createFoodResultButton(
+  food
+) {
+  const button =
+    document
+      .createElement(
+        "button"
+      );
 
-  const amount = formatNumber(food.default_amount);
+  button.type =
+    "button";
+
+  button.className =
+    "food-result";
+
+
+  const amount =
+    formatNumber(
+      food.default_amount
+    );
+
+
+  const weightText =
+    food.weight_grams == null
+      ? ""
+      : ` · 약 ${formatNumber(
+          food.weight_grams
+        )}g`;
+
 
   button.innerHTML = `
     <span class="food-result-main">
 
       <span class="food-result-name">
-        ${escapeHtml(food.food_name)}
+        ${escapeHtml(
+          food.food_name
+        )}
       </span>
 
       <span class="food-result-info">
-        ${amount}${escapeHtml(food.default_unit)}
-        ${food.weight_grams
-          ? ` · 약 ${formatNumber(food.weight_grams)}g`
-          : ""}
+        ${amount}${escapeHtml(
+          food.default_unit
+        )}
+        ${weightText}
       </span>
 
     </span>
 
     <span class="food-result-protein">
-      ${Number(food.protein).toFixed(1)}g
+      ${Number(
+        food.protein
+      ).toFixed(1)}g
     </span>
   `;
 
-  button.addEventListener("click", () => {
-    selectFood(food);
-  });
+
+  button.addEventListener(
+    "click",
+    () => {
+
+      selectFood(food);
+
+    }
+  );
+
 
   return button;
 }
@@ -592,51 +1303,91 @@ function createFoodResultButton(food) {
 ========================================================= */
 
 async function loadFavorites() {
-  const { data, error } = await client
-    .from("food_favorites")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .order("created_at");
+  const {
+    data,
+    error
+  } =
+    await client
+      .from("food_favorites")
+      .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .order(
+        "created_at",
+        {
+          ascending: true
+        }
+      );
+
 
   if (error) {
-    console.error("즐겨찾기 불러오기 실패:", error);
+    console.error(
+      "즐겨찾기 불러오기 실패:",
+      error
+    );
+
     favorites = [];
+
     return;
   }
 
-  favorites = data || [];
+
+  favorites =
+    data || [];
 }
+
 
 function favoriteKey(food) {
-  return `${food.source_type}:${String(food.id)}`;
+  return (
+    `${food.source_type}:` +
+    `${String(food.id)}`
+  );
 }
 
+
 function isFavorite(food) {
-  const key = favoriteKey(food);
+  const key =
+    favoriteKey(food);
+
 
   return favorites.some(
     (favorite) =>
-      `${favorite.source_type}:${favorite.food_id}` === key
+      `${favorite.source_type}:` +
+      `${favorite.food_id}` ===
+      key
   );
 }
+
 
 function favoriteFoodsList() {
-  return allFoods().filter((food) =>
-    isFavorite(food)
-  );
+  return allFoods()
+    .filter(
+      (food) =>
+        isFavorite(food)
+    );
 }
 
-function renderFavorites() {
-  const favoritesBox = $("favoriteFoods");
-  const dialogBox = $("dialogFavorites");
 
-  favoritesBox.innerHTML = "";
+function renderFavorites() {
+  const homeBox =
+    $("favoriteFoods");
+
+  const dialogBox =
+    $("dialogFavorites");
+
+
+  homeBox.innerHTML = "";
   dialogBox.innerHTML = "";
 
-  const foods = favoriteFoodsList();
+
+  const foods =
+    favoriteFoodsList();
+
 
   if (!foods.length) {
-    favoritesBox.innerHTML = `
+    homeBox.innerHTML = `
       <p class="empty-inline">
         즐겨찾기한 음식이 여기에 표시됩니다.
       </p>
@@ -651,61 +1402,128 @@ function renderFavorites() {
     return;
   }
 
-  foods.forEach((food) => {
-    const chip = document.createElement("button");
 
-    chip.type = "button";
-    chip.className = "favorite-chip";
-    chip.textContent = food.food_name;
+  foods.forEach(
+    (food) => {
 
-    chip.addEventListener("click", () => {
-      openFoodDialog();
-      selectFood(food);
-    });
+      const chip =
+        document
+          .createElement(
+            "button"
+          );
 
-    favoritesBox.appendChild(chip);
+      chip.type =
+        "button";
 
-    dialogBox.appendChild(
-      createFoodResultButton(food)
-    );
-  });
+      chip.className =
+        "favorite-chip";
+
+      chip.textContent =
+        food.food_name;
+
+
+      chip.addEventListener(
+        "click",
+        () => {
+
+          openFoodDialog();
+
+          selectFood(food);
+
+        }
+      );
+
+
+      homeBox.appendChild(
+        chip
+      );
+
+
+      dialogBox.appendChild(
+        createFoodResultButton(
+          food
+        )
+      );
+
+    }
+  );
 }
 
+
 async function toggleFavorite() {
-  if (!selectedFood) return;
-
-  if (isFavorite(selectedFood)) {
-    const favorite = favorites.find(
-      (item) =>
-        item.source_type === selectedFood.source_type &&
-        item.food_id === String(selectedFood.id)
-    );
-
-    if (!favorite) return;
-
-    const { error } = await client
-      .from("food_favorites")
-      .delete()
-      .eq("id", favorite.id);
-
-    if (error) {
-      console.error(error);
-      return;
-    }
-  } else {
-    const { error } = await client
-      .from("food_favorites")
-      .insert({
-        user_id: currentUser.id,
-        source_type: selectedFood.source_type,
-        food_id: String(selectedFood.id)
-      });
-
-    if (error) {
-      console.error(error);
-      return;
-    }
+  if (!selectedFood) {
+    return;
   }
+
+
+  if (
+    isFavorite(
+      selectedFood
+    )
+  ) {
+
+    const favorite =
+      favorites.find(
+        (item) =>
+          item.source_type ===
+            selectedFood.source_type &&
+          String(item.food_id) ===
+            String(selectedFood.id)
+      );
+
+
+    if (!favorite) {
+      return;
+    }
+
+
+    const {
+      error
+    } =
+      await client
+        .from("food_favorites")
+        .delete()
+        .eq(
+          "id",
+          favorite.id
+        );
+
+
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+  } else {
+
+    const {
+      error
+    } =
+      await client
+        .from("food_favorites")
+        .insert({
+          user_id:
+            currentUser.id,
+
+          source_type:
+            selectedFood.source_type,
+
+          food_id:
+            String(
+              selectedFood.id
+            )
+        });
+
+
+    if (error) {
+      console.error(error);
+
+      return;
+    }
+
+  }
+
 
   await loadFavorites();
 
@@ -713,11 +1531,19 @@ async function toggleFavorite() {
   updateFavoriteButton();
 }
 
-function updateFavoriteButton() {
-  if (!selectedFood) return;
 
-  $("favoriteToggleBtn").textContent =
-    isFavorite(selectedFood) ? "★" : "☆";
+function updateFavoriteButton() {
+  if (!selectedFood) {
+    return;
+  }
+
+  $("favoriteToggleBtn")
+    .textContent =
+    isFavorite(
+      selectedFood
+    )
+      ? "★"
+      : "☆";
 }
 
 
@@ -729,13 +1555,28 @@ function resetFoodDialog() {
   selectedFood = null;
   editingRecordId = null;
 
-  $("foodDialogTitle").textContent = "음식 추가";
-  $("foodSearchInput").value = "";
+  $("foodDialogTitle")
+    .textContent =
+    "음식 추가";
 
-  $("manualFoodForm").reset();
+  $("foodSearchInput")
+    .value =
+    "";
 
-  $("saveAsMyFood").parentElement.classList.remove("hidden");
-  $("manualFoodSaveBtn").textContent = "기록하기";
+  $("manualFoodForm")
+    .reset();
+
+
+  $("saveAsMyFood")
+    .closest(".check-row")
+    .classList
+    .remove("hidden");
+
+
+  $("manualFoodSaveBtn")
+    .textContent =
+    "기록하기";
+
 
   showFoodSearchStep();
 
@@ -743,73 +1584,165 @@ function resetFoodDialog() {
   renderFavorites();
 }
 
+
 function openFoodDialog() {
   resetFoodDialog();
 
-  $("foodDialog").showModal();
+  $("foodDialog")
+    .showModal();
 }
 
-$("addBtn").addEventListener("click", openFoodDialog);
-$("emptyAddBtn").addEventListener("click", openFoodDialog);
 
-$("closeFoodDialog").addEventListener("click", () => {
-  $("foodDialog").close();
-});
-
-$("foodSearchInput").addEventListener("input", () => {
-  renderFoodSearch(
-    $("foodSearchInput").value
+$("addBtn")
+  .addEventListener(
+    "click",
+    openFoodDialog
   );
-});
 
-$("manualFoodBtn").addEventListener("click", () => {
-  editingRecordId = null;
-  showManualStep();
-});
 
-$("backFromManual").addEventListener("click", () => {
-  resetFoodDialog();
-});
+$("emptyAddBtn")
+  .addEventListener(
+    "click",
+    openFoodDialog
+  );
 
-$("backToFoodSearch").addEventListener("click", () => {
-  selectedFood = null;
-  showFoodSearchStep();
-});
 
-$("favoriteToggleBtn").addEventListener(
-  "click",
-  toggleFavorite
-);
+$("closeFoodDialog")
+  .addEventListener(
+    "click",
+    () => {
+
+      $("foodDialog")
+        .close();
+
+    }
+  );
+
+
+$("foodSearchInput")
+  .addEventListener(
+    "input",
+    () => {
+
+      renderFoodSearch(
+        $("foodSearchInput")
+          .value
+      );
+
+    }
+  );
+
+
+$("manualFoodBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      editingRecordId =
+        null;
+
+      showManualStep();
+
+    }
+  );
+
+
+$("backFromManual")
+  .addEventListener(
+    "click",
+    () => {
+
+      resetFoodDialog();
+
+    }
+  );
+
+
+$("backToFoodSearch")
+  .addEventListener(
+    "click",
+    () => {
+
+      selectedFood =
+        null;
+
+      showFoodSearchStep();
+
+    }
+  );
+
+
+$("favoriteToggleBtn")
+  .addEventListener(
+    "click",
+    toggleFavorite
+  );
+
 
 function showFoodSearchStep() {
-  $("foodSearchStep").classList.remove("hidden");
-  $("databaseFoodForm").classList.add("hidden");
-  $("manualFoodForm").classList.add("hidden");
+  $("foodSearchStep")
+    .classList
+    .remove("hidden");
+
+  $("databaseFoodForm")
+    .classList
+    .add("hidden");
+
+  $("manualFoodForm")
+    .classList
+    .add("hidden");
 }
+
 
 function showDatabaseStep() {
-  $("foodSearchStep").classList.add("hidden");
-  $("databaseFoodForm").classList.remove("hidden");
-  $("manualFoodForm").classList.add("hidden");
+  $("foodSearchStep")
+    .classList
+    .add("hidden");
+
+  $("databaseFoodForm")
+    .classList
+    .remove("hidden");
+
+  $("manualFoodForm")
+    .classList
+    .add("hidden");
 }
+
 
 function showManualStep() {
-  $("foodSearchStep").classList.add("hidden");
-  $("databaseFoodForm").classList.add("hidden");
-  $("manualFoodForm").classList.remove("hidden");
+  $("foodSearchStep")
+    .classList
+    .add("hidden");
+
+  $("databaseFoodForm")
+    .classList
+    .add("hidden");
+
+  $("manualFoodForm")
+    .classList
+    .remove("hidden");
 }
 
-function selectFood(food) {
-  selectedFood = food;
 
-  $("selectedFoodName").textContent =
+function selectFood(food) {
+  selectedFood =
+    food;
+
+
+  $("selectedFoodName")
+    .textContent =
     food.food_name;
 
-  $("databaseFoodAmount").value =
+
+  $("databaseFoodAmount")
+    .value =
     food.default_amount;
 
-  $("databaseFoodUnit").textContent =
+
+  $("databaseFoodUnit")
+    .textContent =
     food.default_unit;
+
 
   updateFavoriteButton();
   updateDatabaseCalculation();
@@ -817,10 +1750,13 @@ function selectFood(food) {
   showDatabaseStep();
 }
 
-$("databaseFoodAmount").addEventListener(
-  "input",
-  updateDatabaseCalculation
-);
+
+$("databaseFoodAmount")
+  .addEventListener(
+    "input",
+    updateDatabaseCalculation
+  );
+
 
 function calculateSelectedFood() {
   if (!selectedFood) {
@@ -830,33 +1766,56 @@ function calculateSelectedFood() {
     };
   }
 
+
   const amount =
-    Number($("databaseFoodAmount").value);
+    Number(
+      $("databaseFoodAmount")
+        .value
+    );
+
 
   const defaultAmount =
-    Number(selectedFood.default_amount);
+    Number(
+      selectedFood.default_amount
+    );
+
 
   if (
     !Number.isFinite(amount) ||
     amount <= 0 ||
-    !Number.isFinite(defaultAmount) ||
+    !Number.isFinite(
+      defaultAmount
+    ) ||
     defaultAmount <= 0
   ) {
+
     return {
       protein: 0,
       weight: null
     };
+
   }
 
-  const ratio = amount / defaultAmount;
+
+  const ratio =
+    amount /
+    defaultAmount;
+
 
   const protein =
-    Number(selectedFood.protein) * ratio;
+    Number(
+      selectedFood.protein
+    ) * ratio;
+
 
   const weight =
-    selectedFood.weight_grams == null
+    selectedFood.weight_grams ==
+    null
       ? null
-      : Number(selectedFood.weight_grams) * ratio;
+      : Number(
+          selectedFood.weight_grams
+        ) * ratio;
+
 
   return {
     protein,
@@ -864,229 +1823,435 @@ function calculateSelectedFood() {
   };
 }
 
+
 function updateDatabaseCalculation() {
-  const result = calculateSelectedFood();
+  const result =
+    calculateSelectedFood();
 
-  $("estimatedProtein").textContent =
-    `${result.protein.toFixed(1)}g`;
 
-  $("estimatedWeight").textContent =
+  $("estimatedProtein")
+    .textContent =
+    `${result.protein.toFixed(
+      1
+    )}g`;
+
+
+  $("estimatedWeight")
+    .textContent =
     result.weight == null
       ? "—"
-      : `약 ${result.weight.toFixed(0)}g`;
+      : `약 ${result.weight.toFixed(
+          0
+        )}g`;
 }
 
-$("databaseFoodForm").addEventListener(
-  "submit",
-  async (event) => {
-    event.preventDefault();
 
-    if (!selectedFood) return;
+$("databaseFoodForm")
+  .addEventListener(
+    "submit",
+    async (event) => {
 
-    const amount =
-      Number($("databaseFoodAmount").value);
+      event.preventDefault();
 
-    if (!amount || amount <= 0) return;
+      if (!selectedFood) {
+        return;
+      }
 
-    const calculation =
-      calculateSelectedFood();
 
-    const { error } = await client
-      .from("protein_records")
-      .insert({
-        user_id: currentUser.id,
-        record_date: localDateKey(selectedDate),
-        food_name: selectedFood.food_name,
-        amount,
-        unit: selectedFood.default_unit,
-        protein: Number(
-          calculation.protein.toFixed(2)
-        )
-      });
+      const amount =
+        Number(
+          $("databaseFoodAmount")
+            .value
+        );
 
-    if (error) {
-      console.error(error);
-      alert("음식을 기록하지 못했습니다.");
-      return;
+
+      if (
+        !Number.isFinite(amount) ||
+        amount <= 0
+      ) {
+        return;
+      }
+
+
+      const calculation =
+        calculateSelectedFood();
+
+
+      const {
+        error
+      } =
+        await client
+          .from(
+            "protein_records"
+          )
+          .insert({
+            user_id:
+              currentUser.id,
+
+            record_date:
+              localDateKey(
+                selectedDate
+              ),
+
+            food_name:
+              selectedFood
+                .food_name,
+
+            amount,
+
+            unit:
+              selectedFood
+                .default_unit,
+
+            protein:
+              Number(
+                calculation
+                  .protein
+                  .toFixed(2)
+              )
+          });
+
+
+      if (error) {
+        console.error(error);
+
+        alert(
+          "음식을 기록하지 못했습니다."
+        );
+
+        return;
+      }
+
+
+      $("foodDialog")
+        .close();
+
+
+      await loadSelectedDateRecords();
+
+      renderToday();
     }
-
-    $("foodDialog").close();
-
-    await loadSelectedDateRecords();
-
-    renderToday();
-  }
-);
+  );
 
 
 /* =========================================================
    MANUAL FOOD
 ========================================================= */
 
-$("manualFoodForm").addEventListener(
-  "submit",
-  async (event) => {
-    event.preventDefault();
+$("manualFoodForm")
+  .addEventListener(
+    "submit",
+    async (event) => {
 
-    const foodName =
-      $("manualFoodName").value.trim();
+      event.preventDefault();
 
-    const amount =
-      Number($("manualAmount").value);
 
-    const unit =
-      $("manualUnit").value;
+      const foodName =
+        $("manualFoodName")
+          .value
+          .trim();
 
-    const protein =
-      Number($("manualProtein").value);
 
-    if (
-      !foodName ||
-      !amount ||
-      amount <= 0 ||
-      !Number.isFinite(protein) ||
-      protein < 0
-    ) {
-      return;
-    }
-
-    const payload = {
-      user_id: currentUser.id,
-      record_date: localDateKey(selectedDate),
-      food_name: foodName,
-      amount,
-      unit,
-      protein: Number(protein.toFixed(2))
-    };
-
-    let error = null;
-
-    if (editingRecordId) {
-      const result = await client
-        .from("protein_records")
-        .update(payload)
-        .eq("id", editingRecordId);
-
-      error = result.error;
-    } else {
-      const result = await client
-        .from("protein_records")
-        .insert(payload);
-
-      error = result.error;
-    }
-
-    if (error) {
-      console.error(error);
-      alert("음식을 저장하지 못했습니다.");
-      return;
-    }
-
-    if (
-      !editingRecordId &&
-      $("saveAsMyFood").checked
-    ) {
-      const { error: foodError } = await client
-        .from("user_foods")
-        .insert({
-          user_id: currentUser.id,
-          food_name: foodName,
-          default_unit: unit,
-          default_amount: amount,
-          weight_grams:
-            unit === "g"
-              ? amount
-              : null,
-          protein: Number(protein.toFixed(2))
-        });
-
-      if (foodError) {
-        console.error(
-          "내 음식 저장 실패:",
-          foodError
+      const amount =
+        Number(
+          $("manualAmount")
+            .value
         );
+
+
+      const unit =
+        $("manualUnit")
+          .value;
+
+
+      const protein =
+        Number(
+          $("manualProtein")
+            .value
+        );
+
+
+      if (
+        !foodName ||
+        !Number.isFinite(amount) ||
+        amount <= 0 ||
+        !Number.isFinite(protein) ||
+        protein < 0
+      ) {
+        return;
       }
+
+
+      const payload = {
+        user_id:
+          currentUser.id,
+
+        record_date:
+          localDateKey(
+            selectedDate
+          ),
+
+        food_name:
+          foodName,
+
+        amount,
+
+        unit,
+
+        protein:
+          Number(
+            protein.toFixed(2)
+          )
+      };
+
+
+      let error = null;
+
+
+      if (
+        editingRecordId
+      ) {
+
+        const result =
+          await client
+            .from(
+              "protein_records"
+            )
+            .update(payload)
+            .eq(
+              "id",
+              editingRecordId
+            );
+
+        error =
+          result.error;
+
+      } else {
+
+        const result =
+          await client
+            .from(
+              "protein_records"
+            )
+            .insert(payload);
+
+        error =
+          result.error;
+
+      }
+
+
+      if (error) {
+        console.error(error);
+
+        alert(
+          "음식을 저장하지 못했습니다."
+        );
+
+        return;
+      }
+
+
+      if (
+        !editingRecordId &&
+        $("saveAsMyFood")
+          .checked
+      ) {
+
+        const {
+          error: foodError
+        } =
+          await client
+            .from("user_foods")
+            .insert({
+              user_id:
+                currentUser.id,
+
+              food_name:
+                foodName,
+
+              default_unit:
+                unit,
+
+              default_amount:
+                amount,
+
+              weight_grams:
+                unit === "g"
+                  ? amount
+                  : null,
+
+              protein:
+                Number(
+                  protein.toFixed(
+                    2
+                  )
+                )
+            });
+
+
+        if (foodError) {
+          console.error(
+            "내 음식 저장 실패:",
+            foodError
+          );
+        }
+
+      }
+
+
+      $("foodDialog")
+        .close();
+
+
+      editingRecordId =
+        null;
+
+
+      await Promise.all([
+        loadSelectedDateRecords(),
+        loadFoodLibrary()
+      ]);
+
+
+      renderToday();
+      renderFavorites();
     }
-
-    $("foodDialog").close();
-
-    editingRecordId = null;
-
-    await Promise.all([
-      loadSelectedDateRecords(),
-      loadFoodLibrary()
-    ]);
-
-    renderToday();
-    renderFavorites();
-  }
-);
+  );
 
 
 /* =========================================================
    CALENDAR
 ========================================================= */
 
-$("prevMonthBtn").addEventListener(
-  "click",
-  async () => {
-    calendarDate = new Date(
-      calendarDate.getFullYear(),
-      calendarDate.getMonth() - 1,
-      1
-    );
+$("prevMonthBtn")
+  .addEventListener(
+    "click",
+    async () => {
 
-    await renderCalendar();
-  }
-);
+      calendarDate =
+        new Date(
+          calendarDate
+            .getFullYear(),
 
-$("nextMonthBtn").addEventListener(
-  "click",
-  async () => {
-    const next = new Date(
-      calendarDate.getFullYear(),
-      calendarDate.getMonth() + 1,
-      1
-    );
+          calendarDate
+            .getMonth() - 1,
 
-    const currentMonth = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1
-    );
+          1
+        );
 
-    if (next > currentMonth) return;
+      await renderCalendar();
+    }
+  );
 
-    calendarDate = next;
 
-    await renderCalendar();
-  }
-);
+$("nextMonthBtn")
+  .addEventListener(
+    "click",
+    async () => {
+
+      const next =
+        new Date(
+          calendarDate
+            .getFullYear(),
+
+          calendarDate
+            .getMonth() + 1,
+
+          1
+        );
+
+
+      const currentMonth =
+        new Date(
+          new Date()
+            .getFullYear(),
+
+          new Date()
+            .getMonth(),
+
+          1
+        );
+
+
+      if (
+        next > currentMonth
+      ) {
+        return;
+      }
+
+
+      calendarDate =
+        next;
+
+      await renderCalendar();
+    }
+  );
+
 
 async function renderCalendar() {
-  const year = calendarDate.getFullYear();
-  const month = calendarDate.getMonth();
+  const year =
+    calendarDate
+      .getFullYear();
 
-  $("calendarMonthLabel").textContent =
+  const month =
+    calendarDate
+      .getMonth();
+
+
+  $("calendarMonthLabel")
+    .textContent =
     `${year}년 ${month + 1}월`;
 
+
   const firstDate =
-    new Date(year, month, 1);
+    new Date(
+      year,
+      month,
+      1
+    );
+
 
   const lastDate =
-    new Date(year, month + 1, 0);
+    new Date(
+      year,
+      month + 1,
+      0
+    );
+
 
   const startKey =
-    localDateKey(firstDate);
+    localDateKey(
+      firstDate
+    );
+
 
   const endKey =
-    localDateKey(lastDate);
+    localDateKey(
+      lastDate
+    );
 
-  const { data, error } = await client
-    .from("protein_records")
-    .select("record_date, protein")
-    .gte("record_date", startKey)
-    .lte("record_date", endKey);
+
+  const {
+    data,
+    error
+  } =
+    await client
+      .from(
+        "protein_records"
+      )
+      .select(
+        "record_date, protein"
+      )
+      .gte(
+        "record_date",
+        startKey
+      )
+      .lte(
+        "record_date",
+        endKey
+      );
+
 
   if (error) {
     console.error(
@@ -1095,101 +2260,206 @@ async function renderCalendar() {
     );
 
     monthRecords = [];
+
   } else {
-    monthRecords = data || [];
+
+    monthRecords =
+      data || [];
+
   }
+
 
   const totals = {};
 
-  monthRecords.forEach((record) => {
-    if (!totals[record.record_date]) {
-      totals[record.record_date] = 0;
+
+  monthRecords.forEach(
+    (record) => {
+
+      if (
+        !totals[
+          record.record_date
+        ]
+      ) {
+
+        totals[
+          record.record_date
+        ] = 0;
+
+      }
+
+
+      totals[
+        record.record_date
+      ] +=
+        Number(
+          record.protein
+        );
+
     }
+  );
 
-    totals[record.record_date] +=
-      Number(record.protein);
-  });
 
-  const grid = $("calendarGrid");
+  const grid =
+    $("calendarGrid");
 
   grid.innerHTML = "";
 
+
   for (
-    let i = 0;
-    i < firstDate.getDay();
-    i++
+    let index = 0;
+    index <
+      firstDate.getDay();
+    index++
   ) {
+
     const empty =
-      document.createElement("div");
+      document
+        .createElement(
+          "div"
+        );
 
     empty.className =
       "calendar-day empty";
 
-    grid.appendChild(empty);
+    grid.appendChild(
+      empty
+    );
+
   }
+
 
   for (
     let day = 1;
-    day <= lastDate.getDate();
+    day <=
+      lastDate.getDate();
     day++
   ) {
+
     const date =
-      new Date(year, month, day);
+      new Date(
+        year,
+        month,
+        day
+      );
+
 
     const key =
       localDateKey(date);
 
+
     const total =
       totals[key] || 0;
 
-    const percent =
+
+    const rawProgress =
       proteinGoal > 0
-        ? total / proteinGoal
+        ? total /
+          proteinGoal
         : 0;
 
+
+    const progress =
+      Math.max(
+        0,
+        Math.min(
+          rawProgress,
+          1
+        )
+      );
+
+
+    const degrees =
+      progress * 360;
+
+
     const button =
-      document.createElement("button");
+      document
+        .createElement(
+          "button"
+        );
 
-    button.type = "button";
-    button.className = "calendar-day";
 
-    if (key === todayKey()) {
-      button.classList.add("today");
-    }
+    button.type =
+      "button";
+
+    button.className =
+      "calendar-day";
+
+
+    button.style
+      .setProperty(
+        "--progress-angle",
+        `${degrees}deg`
+      );
+
 
     if (
-      key === localDateKey(selectedDate)
+      total <= 0
     ) {
-      button.classList.add("selected");
+      button.classList
+        .add(
+          "no-record"
+        );
     }
 
-    if (percent >= 1) {
-      button.classList.add("complete");
+
+    if (
+      rawProgress >= 1
+    ) {
+      button.classList
+        .add(
+          "complete"
+        );
     }
 
-    if (total > 0) {
-      button.innerHTML = `
-        <span>${day}</span>
+
+    if (
+      key === todayKey()
+    ) {
+      button.classList
+        .add("today");
+    }
+
+
+    if (
+      key ===
+      localDateKey(
+        selectedDate
+      )
+    ) {
+      button.classList
+        .add("selected");
+    }
+
+
+    button.innerHTML = `
+      <span class="calendar-ring">
+
         <span
-          class="day-progress"
-          style="opacity:${Math.max(
-            0.25,
-            Math.min(percent, 1)
-          )}"
-        ></span>
-      `;
-    } else {
-      button.textContent = day;
-    }
+          class="calendar-ring-inner"
+        >
+          ${day}
+        </span>
 
-    if (isFuture(date)) {
-      button.disabled = true;
-      button.style.opacity = "0.25";
+      </span>
+    `;
+
+
+    if (
+      isFuture(date)
+    ) {
+
+      button.disabled =
+        true;
+
     } else {
+
       button.addEventListener(
         "click",
         async () => {
-          selectedDate = date;
+
+          selectedDate =
+            date;
 
           await loadSelectedDateRecords();
 
@@ -1198,206 +2468,326 @@ async function renderCalendar() {
           switchToTodayView();
         }
       );
+
     }
 
-    grid.appendChild(button);
+
+    grid.appendChild(
+      button
+    );
+
   }
 
+
   const recordedTotals =
-    Object.values(totals);
+    Object.values(
+      totals
+    );
 
-  if (!recordedTotals.length) {
-    $("monthlyAverageProtein").textContent =
+
+  if (
+    !recordedTotals.length
+  ) {
+
+    $("monthlyAverageProtein")
+      .textContent =
       "—";
 
-    $("monthlyAveragePercent").textContent =
+    $("monthlyAveragePercent")
+      .textContent =
       "—";
 
-    $("monthlyGoalDays").textContent =
+    $("monthlyGoalDays")
+      .textContent =
       "—";
 
     return;
   }
 
+
   const sum =
     recordedTotals.reduce(
-      (a, b) => a + b,
+      (a, b) =>
+        a + b,
       0
     );
 
+
   const average =
-    sum / recordedTotals.length;
+    sum /
+    recordedTotals.length;
+
 
   const averagePercent =
     proteinGoal > 0
-      ? (average / proteinGoal) * 100
+      ? (
+          average /
+          proteinGoal
+        ) * 100
       : 0;
+
 
   const goalDays =
     recordedTotals.filter(
-      (total) => total >= proteinGoal
+      (totalValue) =>
+        totalValue >=
+        proteinGoal
     ).length;
 
-  $("monthlyAverageProtein").textContent =
-    `${average.toFixed(1)}g`;
 
-  $("monthlyAveragePercent").textContent =
-    `${Math.round(averagePercent)}%`;
+  $("monthlyAverageProtein")
+    .textContent =
+    `${average.toFixed(
+      1
+    )}g`;
 
-  $("monthlyGoalDays").textContent =
+
+  $("monthlyAveragePercent")
+    .textContent =
+    `${Math.round(
+      averagePercent
+    )}%`;
+
+
+  $("monthlyGoalDays")
+    .textContent =
     `${goalDays}일`;
 }
+
 
 function switchToTodayView() {
   document
     .querySelectorAll(".view")
-    .forEach((view) =>
-      view.classList.remove("active")
+    .forEach(
+      (view) => {
+
+        view.classList
+          .remove("active");
+
+      }
     );
 
-  $("todayView").classList.add("active");
+
+  $("todayView")
+    .classList
+    .add("active");
+
 
   document
-    .querySelectorAll(".nav-item")
-    .forEach((button) => {
-      button.classList.toggle(
-        "active",
-        button.dataset.view === "today"
-      );
-    });
+    .querySelectorAll(
+      ".nav-item"
+    )
+    .forEach(
+      (button) => {
+
+        button.classList.toggle(
+          "active",
+          button.dataset.view ===
+            "today"
+        );
+
+      }
+    );
 }
 
 
 /* =========================================================
-   PROFILE
+   BODY CALCULATIONS
 ========================================================= */
 
-$("profileBtn").addEventListener(
-  "click",
-  openProfile
-);
+function calculateAge(
+  birthDate
+) {
+  if (!birthDate) {
+    return null;
+  }
 
-$("settingsBtn").addEventListener(
-  "click",
-  openProfile
-);
 
-$("closeProfileDialog").addEventListener(
-  "click",
-  () => $("profileDialog").close()
-);
+  const birth =
+    dateFromKey(
+      birthDate
+    );
 
-async function openProfile() {
-  const { data, error } = await client
-    .from("user_profile")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .maybeSingle();
 
-  if (error) {
-    console.error(
-      "프로필 불러오기 실패:",
-      error
+  if (
+    Number.isNaN(
+      birth.getTime()
+    )
+  ) {
+    return null;
+  }
+
+
+  const today =
+    new Date();
+
+
+  let age =
+    today.getFullYear() -
+    birth.getFullYear();
+
+
+  const birthdayPassed =
+    today.getMonth() >
+      birth.getMonth() ||
+
+    (
+      today.getMonth() ===
+        birth.getMonth() &&
+
+      today.getDate() >=
+        birth.getDate()
+    );
+
+
+  if (
+    !birthdayPassed
+  ) {
+    age -= 1;
+  }
+
+
+  return age;
+}
+
+
+function calculateBMI(
+  weightKg
+) {
+  const heightCm =
+    Number(
+      userProfile?.height_cm
+    );
+
+
+  if (
+    !Number.isFinite(
+      weightKg
+    ) ||
+    weightKg <= 0 ||
+    !Number.isFinite(
+      heightCm
+    ) ||
+    heightCm <= 0
+  ) {
+    return null;
+  }
+
+
+  const heightM =
+    heightCm / 100;
+
+
+  return (
+    weightKg /
+    (
+      heightM *
+      heightM
+    )
+  );
+}
+
+
+/*
+  Mifflin-St Jeor equation
+
+  여성:
+  10W + 6.25H - 5A - 161
+
+  남성:
+  10W + 6.25H - 5A + 5
+*/
+
+function calculateBMR(
+  weightKg
+) {
+  const heightCm =
+    Number(
+      userProfile?.height_cm
+    );
+
+
+  const age =
+    calculateAge(
+      userProfile?.birth_date
+    );
+
+
+  const sex =
+    userProfile?.sex;
+
+
+  if (
+    !Number.isFinite(
+      weightKg
+    ) ||
+    weightKg <= 0 ||
+    !Number.isFinite(
+      heightCm
+    ) ||
+    heightCm <= 0 ||
+    age == null ||
+    age < 0 ||
+    !sex
+  ) {
+    return null;
+  }
+
+
+  const base =
+    10 * weightKg +
+    6.25 * heightCm -
+    5 * age;
+
+
+  if (
+    sex === "female"
+  ) {
+    return (
+      base - 161
     );
   }
 
-  $("profileSex").value =
-    data?.sex || "";
 
-  $("profileBirthDate").value =
-    data?.birth_date || "";
+  if (
+    sex === "male"
+  ) {
+    return (
+      base + 5
+    );
+  }
 
-  $("profileHeight").value =
-    data?.height_cm ?? "";
 
-  $("profileProteinGoal").value =
-    proteinGoal;
-
-  $("profileDialog").showModal();
+  return null;
 }
 
-$("profileForm").addEventListener(
-  "submit",
-  async (event) => {
-    event.preventDefault();
 
-    const sex =
-      $("profileSex").value || null;
+/*
+  근육 증가를 위한 실용적 추천 범위.
+  사용자가 직접 설정한 proteinGoal과는 별개.
+*/
 
-    const birthDate =
-      $("profileBirthDate").value || null;
-
-    const heightValue =
-      $("profileHeight").value;
-
-    const height =
-      heightValue === ""
-        ? null
-        : Number(heightValue);
-
-    const goal =
-      Number(
-        $("profileProteinGoal").value
-      );
-
-    if (!goal || goal <= 0) return;
-
-    const [
-      profileResult,
-      goalResult
-    ] = await Promise.all([
-      client
-        .from("user_profile")
-        .upsert(
-          {
-            user_id: currentUser.id,
-            sex,
-            birth_date: birthDate,
-            height_cm: height,
-            updated_at:
-              new Date().toISOString()
-          },
-          {
-            onConflict: "user_id"
-          }
-        ),
-
-      client
-        .from("user_settings")
-        .upsert(
-          {
-            user_id: currentUser.id,
-            protein_goal: goal,
-            updated_at:
-              new Date().toISOString()
-          },
-          {
-            onConflict: "user_id"
-          }
-        )
-    ]);
-
-    if (
-      profileResult.error ||
-      goalResult.error
-    ) {
-      console.error(
-        profileResult.error ||
-        goalResult.error
-      );
-
-      alert("정보를 저장하지 못했습니다.");
-
-      return;
-    }
-
-    proteinGoal = goal;
-
-    $("profileDialog").close();
-
-    renderToday();
+function calculateProteinRecommendation(
+  weightKg
+) {
+  if (
+    !Number.isFinite(
+      weightKg
+    ) ||
+    weightKg <= 0
+  ) {
+    return null;
   }
-);
+
+
+  return {
+    minimum:
+      weightKg * 1.6,
+
+    maximum:
+      weightKg * 2.0
+  };
+}
 
 
 /* =========================================================
@@ -1405,13 +2795,24 @@ $("profileForm").addEventListener(
 ========================================================= */
 
 async function loadBodyRecords() {
-  const { data, error } = await client
-    .from("body_records")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .order("record_date", {
-      ascending: true
-    });
+  const {
+    data,
+    error
+  } =
+    await client
+      .from("body_records")
+      .select("*")
+      .eq(
+        "user_id",
+        currentUser.id
+      )
+      .order(
+        "record_date",
+        {
+          ascending: true
+        }
+      );
+
 
   if (error) {
     console.error(
@@ -1420,181 +2821,432 @@ async function loadBodyRecords() {
     );
 
     bodyRecords = [];
+
     return;
   }
 
-  bodyRecords = data || [];
+
+  bodyRecords =
+    data || [];
 }
 
-$("addBodyRecordBtn").addEventListener(
-  "click",
-  () => {
-    $("bodyRecordForm").reset();
 
-    $("bodyRecordDate").value =
-      todayKey();
+$("addBodyRecordBtn")
+  .addEventListener(
+    "click",
+    () => {
 
-    $("bodyRecordDialog").showModal();
-  }
-);
+      $("bodyRecordForm")
+        .reset();
 
-$("closeBodyRecordDialog").addEventListener(
-  "click",
-  () => {
-    $("bodyRecordDialog").close();
-  }
-);
 
-$("bodyRecordForm").addEventListener(
-  "submit",
-  async (event) => {
-    event.preventDefault();
+      $("bodyRecordDate")
+        .value =
+        todayKey();
 
-    const recordDate =
-      $("bodyRecordDate").value;
 
-    if (!recordDate) return;
+      $("bodyRecordDialog")
+        .showModal();
 
-    const weight =
-      optionalNumber(
-        $("bodyWeight").value
-      );
-
-    const muscle =
-      optionalNumber(
-        $("bodyMuscle").value
-      );
-
-    const fat =
-      optionalNumber(
-        $("bodyFat").value
-      );
-
-    if (
-      weight == null &&
-      muscle == null &&
-      fat == null
-    ) {
-      alert(
-        "측정값을 하나 이상 입력해주세요."
-      );
-
-      return;
     }
+  );
 
-    const { error } = await client
-      .from("body_records")
-      .upsert(
-        {
-          user_id: currentUser.id,
-          record_date: recordDate,
-          weight_kg: weight,
-          skeletal_muscle_kg: muscle,
-          body_fat_kg: fat
-        },
-        {
-          onConflict:
-            "user_id,record_date"
-        }
-      );
 
-    if (error) {
-      console.error(error);
+$("closeBodyRecordDialog")
+  .addEventListener(
+    "click",
+    () => {
 
-      alert(
-        "측정 기록을 저장하지 못했습니다."
-      );
+      $("bodyRecordDialog")
+        .close();
 
-      return;
     }
+  );
 
-    $("bodyRecordDialog").close();
 
-    await loadBodyRecords();
+$("bodyRecordForm")
+  .addEventListener(
+    "submit",
+    async (event) => {
 
-    renderGrowth();
-  }
-);
+      event.preventDefault();
+
+
+      const recordDate =
+        $("bodyRecordDate")
+          .value;
+
+
+      if (!recordDate) {
+        return;
+      }
+
+
+      const recordDateObject =
+        dateFromKey(
+          recordDate
+        );
+
+
+      if (
+        isFuture(
+          recordDateObject
+        )
+      ) {
+        return;
+      }
+
+
+      const weight =
+        optionalNumber(
+          $("bodyWeight")
+            .value
+        );
+
+
+      const muscle =
+        optionalNumber(
+          $("bodyMuscle")
+            .value
+        );
+
+
+      const fat =
+        optionalNumber(
+          $("bodyFat")
+            .value
+        );
+
+
+      if (
+        weight == null &&
+        muscle == null &&
+        fat == null
+      ) {
+
+        alert(
+          "측정값을 하나 이상 입력해주세요."
+        );
+
+        return;
+      }
+
+
+      const {
+        error
+      } =
+        await client
+          .from("body_records")
+          .upsert(
+            {
+              user_id:
+                currentUser.id,
+
+              record_date:
+                recordDate,
+
+              weight_kg:
+                weight,
+
+              skeletal_muscle_kg:
+                muscle,
+
+              body_fat_kg:
+                fat
+            },
+            {
+              onConflict:
+                "user_id,record_date"
+            }
+          );
+
+
+      if (error) {
+        console.error(error);
+
+        alert(
+          "측정 기록을 저장하지 못했습니다."
+        );
+
+        return;
+      }
+
+
+      $("bodyRecordDialog")
+        .close();
+
+
+      await loadBodyRecords();
+
+      renderGrowth();
+    }
+  );
+
 
 function renderGrowth() {
-  if (!bodyRecords.length) {
-    $("latestBodyDate").textContent =
+  if (
+    !bodyRecords.length
+  ) {
+
+    $("latestBodyDate")
+      .textContent =
       "기록 없음";
 
-    $("latestWeight").textContent = "—";
-    $("latestMuscle").textContent = "—";
-    $("latestBodyFat").textContent = "—";
+    $("latestWeight")
+      .textContent =
+      "—";
+
+    $("latestMuscle")
+      .textContent =
+      "—";
+
+    $("latestBodyFat")
+      .textContent =
+      "—";
+
+    $("latestBMI")
+      .textContent =
+      "—";
+
+    $("latestBMR")
+      .textContent =
+      "—";
+
+    $("recommendedProtein")
+      .textContent =
+      "—";
+
 
     renderGrowthChart();
 
     return;
   }
 
+
   const latest =
     bodyRecords[
       bodyRecords.length - 1
     ];
 
-  $("latestBodyDate").textContent =
+
+  $("latestBodyDate")
+    .textContent =
     formatShortDate(
       latest.record_date
     );
 
-  $("latestWeight").textContent =
+
+  $("latestWeight")
+    .textContent =
     latest.weight_kg == null
       ? "—"
       : formatNumber(
           latest.weight_kg
         );
 
-  $("latestMuscle").textContent =
-    latest.skeletal_muscle_kg == null
+
+  $("latestMuscle")
+    .textContent =
+    latest.skeletal_muscle_kg ==
+    null
       ? "—"
       : formatNumber(
           latest.skeletal_muscle_kg
         );
 
-  $("latestBodyFat").textContent =
+
+  $("latestBodyFat")
+    .textContent =
     latest.body_fat_kg == null
       ? "—"
       : formatNumber(
           latest.body_fat_kg
         );
 
+
+  const latestWeight =
+    latest.weight_kg == null
+      ? null
+      : Number(
+          latest.weight_kg
+        );
+
+
+  const bmi =
+    calculateBMI(
+      latestWeight
+    );
+
+
+  const bmr =
+    calculateBMR(
+      latestWeight
+    );
+
+
+  const recommendation =
+    calculateProteinRecommendation(
+      latestWeight
+    );
+
+
+  $("latestBMI")
+    .textContent =
+    bmi == null
+      ? "—"
+      : bmi.toFixed(1);
+
+
+  $("latestBMR")
+    .textContent =
+    bmr == null
+      ? "—"
+      : Math.round(bmr)
+          .toLocaleString(
+            "ko-KR"
+          );
+
+
+  $("recommendedProtein")
+    .textContent =
+    recommendation == null
+      ? "—"
+      : `${Math.round(
+          recommendation.minimum
+        )}–${Math.round(
+          recommendation.maximum
+        )} g / day`;
+
+
   renderGrowthChart();
 }
 
 
 /* =========================================================
-   SIMPLE GROWTH CHART
+   GROWTH CHART SELECTOR
 ========================================================= */
 
 document
   .querySelectorAll(
     "#chartSelector button"
   )
-  .forEach((button) => {
-    button.addEventListener(
-      "click",
-      () => {
-        selectedChart =
-          button.dataset.chart;
+  .forEach(
+    (button) => {
 
-        document
-          .querySelectorAll(
-            "#chartSelector button"
-          )
-          .forEach((item) => {
-            item.classList.toggle(
-              "active",
-              item === button
+      button.addEventListener(
+        "click",
+        () => {
+
+          selectedChart =
+            button.dataset.chart;
+
+
+          document
+            .querySelectorAll(
+              "#chartSelector button"
+            )
+            .forEach(
+              (item) => {
+
+                item.classList.toggle(
+                  "active",
+                  item === button
+                );
+
+              }
             );
-          });
 
-        renderGrowthChart();
-      }
+
+          renderGrowthChart();
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   GROWTH CHART
+========================================================= */
+
+function getGrowthPoints() {
+  if (
+    selectedChart ===
+    "bmi"
+  ) {
+
+    return bodyRecords
+      .filter(
+        (record) =>
+          record.weight_kg !=
+          null
+      )
+      .map(
+        (record) => ({
+          date:
+            record.record_date,
+
+          value:
+            calculateBMI(
+              Number(
+                record.weight_kg
+              )
+            )
+        })
+      )
+      .filter(
+        (point) =>
+          point.value != null
+      );
+
+  }
+
+
+  let property =
+    "skeletal_muscle_kg";
+
+
+  if (
+    selectedChart ===
+    "weight"
+  ) {
+
+    property =
+      "weight_kg";
+
+  }
+
+
+  if (
+    selectedChart ===
+    "fat"
+  ) {
+
+    property =
+      "body_fat_kg";
+
+  }
+
+
+  return bodyRecords
+    .filter(
+      (record) =>
+        record[property] !=
+        null
+    )
+    .map(
+      (record) => ({
+        date:
+          record.record_date,
+
+        value:
+          Number(
+            record[property]
+          )
+      })
     );
-  });
+}
+
 
 function renderGrowthChart() {
   const canvas =
@@ -1603,56 +3255,78 @@ function renderGrowthChart() {
   const empty =
     $("chartEmpty");
 
-  const property =
-    selectedChart === "muscle"
-      ? "skeletal_muscle_kg"
-      : selectedChart === "weight"
-        ? "weight_kg"
-        : "body_fat_kg";
 
   const points =
-    bodyRecords
-      .filter(
-        (record) =>
-          record[property] != null
-      )
-      .map((record) => ({
-        date: record.record_date,
-        value: Number(
-          record[property]
-        )
-      }));
+    getGrowthPoints();
 
-  if (!points.length) {
-    canvas.style.display = "none";
-    empty.style.display = "block";
+
+  if (
+    !points.length
+  ) {
+
+    canvas.style.display =
+      "none";
+
+    empty.style.display =
+      "block";
+
     return;
   }
 
-  canvas.style.display = "block";
-  empty.style.display = "none";
+
+  canvas.style.display =
+    "block";
+
+  empty.style.display =
+    "none";
+
 
   const rect =
-    canvas.getBoundingClientRect();
+    canvas
+      .getBoundingClientRect();
+
 
   const ratio =
-    window.devicePixelRatio || 1;
+    window.devicePixelRatio ||
+    1;
+
 
   const width =
-    Math.max(rect.width, 280);
+    Math.max(
+      rect.width,
+      260
+    );
 
-  const height = 220;
+
+  const height =
+    245;
+
 
   canvas.width =
-    width * ratio;
+    Math.round(
+      width * ratio
+    );
+
 
   canvas.height =
-    height * ratio;
+    Math.round(
+      height * ratio
+    );
+
 
   const ctx =
     canvas.getContext("2d");
 
-  ctx.scale(ratio, ratio);
+
+  ctx.setTransform(
+    ratio,
+    0,
+    0,
+    ratio,
+    0,
+    0
+  );
+
 
   ctx.clearRect(
     0,
@@ -1661,69 +3335,126 @@ function renderGrowthChart() {
     height
   );
 
+
   const styles =
     getComputedStyle(
       document.documentElement
     );
 
+
   const lineColor =
     styles
-      .getPropertyValue("--black")
-      .trim();
+      .getPropertyValue(
+        "--text"
+      )
+      .trim() ||
+    "#171717";
+
 
   const gridColor =
     styles
-      .getPropertyValue("--line")
-      .trim();
+      .getPropertyValue(
+        "--line"
+      )
+      .trim() ||
+    "#ddddda";
+
 
   const textColor =
     styles
       .getPropertyValue(
         "--text-secondary"
       )
-      .trim();
+      .trim() ||
+    "#707070";
+
+
+  /*
+    top을 넉넉히 잡아서
+    가장 높은 점의 숫자가
+    잘리지 않도록 한다.
+  */
 
   const padding = {
-    top: 25,
-    right: 15,
-    bottom: 35,
-    left: 38
+    top: 38,
+    right: 18,
+    bottom: 38,
+    left: 39
   };
+
 
   const values =
     points.map(
-      (point) => point.value
+      (point) =>
+        point.value
     );
 
-  let min =
-    Math.min(...values);
 
-  let max =
-    Math.max(...values);
+  let minimum =
+    Math.min(
+      ...values
+    );
 
-  if (min === max) {
-    min -= 1;
-    max += 1;
-  } else {
+
+  let maximum =
+    Math.max(
+      ...values
+    );
+
+
+  if (
+    minimum === maximum
+  ) {
+
     const margin =
-      (max - min) * 0.25;
+      Math.max(
+        Math.abs(
+          minimum
+        ) * 0.05,
+        0.5
+      );
 
-    min -= margin;
-    max += margin;
+    minimum -= margin;
+    maximum += margin;
+
+  } else {
+
+    const margin =
+      (
+        maximum -
+        minimum
+      ) * 0.2;
+
+    minimum -= margin;
+    maximum += margin;
+
   }
+
 
   const chartWidth =
     width -
     padding.left -
     padding.right;
 
+
   const chartHeight =
     height -
     padding.top -
     padding.bottom;
 
+
+  /*
+    horizontal grid
+  */
+
   ctx.font =
     "10px -apple-system, BlinkMacSystemFont, sans-serif";
+
+  ctx.textAlign =
+    "left";
+
+  ctx.textBaseline =
+    "middle";
 
   ctx.fillStyle =
     textColor;
@@ -1733,10 +3464,30 @@ function renderGrowthChart() {
 
   ctx.lineWidth = 1;
 
-  for (let i = 0; i < 3; i++) {
+
+  for (
+    let index = 0;
+    index < 3;
+    index++
+  ) {
+
+    const ratioY =
+      index / 2;
+
+
     const y =
       padding.top +
-      (chartHeight / 2) * i;
+      chartHeight *
+        ratioY;
+
+
+    const value =
+      maximum -
+      (
+        maximum -
+        minimum
+      ) * ratioY;
+
 
     ctx.beginPath();
 
@@ -1746,157 +3497,392 @@ function renderGrowthChart() {
     );
 
     ctx.lineTo(
-      width - padding.right,
+      width -
+      padding.right,
       y
     );
 
     ctx.stroke();
 
-    const value =
-      max -
-      ((max - min) / 2) * i;
 
     ctx.fillText(
       value.toFixed(1),
       2,
-      y + 3
+      y
     );
+
   }
 
-  const pointX = (index) => {
-    if (points.length === 1) {
+
+  function pointX(index) {
+    if (
+      points.length === 1
+    ) {
+
       return (
         padding.left +
         chartWidth / 2
       );
+
     }
+
 
     return (
       padding.left +
-      (chartWidth /
-        (points.length - 1)) *
-        index
+      (
+        chartWidth /
+        (
+          points.length -
+          1
+        )
+      ) * index
     );
-  };
+  }
 
-  const pointY = (value) =>
-    padding.top +
-    ((max - value) /
-      (max - min)) *
-      chartHeight;
+
+  function pointY(value) {
+    return (
+      padding.top +
+      (
+        (
+          maximum -
+          value
+        ) /
+        (
+          maximum -
+          minimum
+        )
+      ) *
+      chartHeight
+    );
+  }
+
+
+  /*
+    line
+  */
 
   ctx.strokeStyle =
     lineColor;
 
-  ctx.lineWidth = 2;
+  ctx.lineWidth =
+    1.8;
+
+  ctx.lineJoin =
+    "round";
+
+  ctx.lineCap =
+    "round";
+
 
   ctx.beginPath();
 
-  points.forEach((point, index) => {
-    const x =
-      pointX(index);
 
-    const y =
-      pointY(point.value);
+  points.forEach(
+    (point, index) => {
 
-    if (index === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
+      const x =
+        pointX(index);
+
+      const y =
+        pointY(
+          point.value
+        );
+
+
+      if (
+        index === 0
+      ) {
+
+        ctx.moveTo(
+          x,
+          y
+        );
+
+      } else {
+
+        ctx.lineTo(
+          x,
+          y
+        );
+
+      }
+
     }
-  });
+  );
+
 
   ctx.stroke();
+
+
+  /*
+    points
+  */
 
   ctx.fillStyle =
     lineColor;
 
-  points.forEach((point, index) => {
-    const x =
-      pointX(index);
 
-    const y =
-      pointY(point.value);
+  points.forEach(
+    (point, index) => {
 
-    ctx.beginPath();
+      const x =
+        pointX(index);
 
-    ctx.arc(
-      x,
-      y,
-      3.5,
+      const y =
+        pointY(
+          point.value
+        );
+
+
+      ctx.beginPath();
+
+      ctx.arc(
+        x,
+        y,
+        3.5,
+        0,
+        Math.PI * 2
+      );
+
+      ctx.fill();
+
+    }
+  );
+
+
+  /*
+    정확한 수치
+    각 점 바로 위
+  */
+
+  ctx.font =
+    "600 11px -apple-system, BlinkMacSystemFont, sans-serif";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "bottom";
+
+  ctx.fillStyle =
+    lineColor;
+
+
+  points.forEach(
+    (point, index) => {
+
+      const x =
+        pointX(index);
+
+      const y =
+        pointY(
+          point.value
+        );
+
+
+      ctx.fillText(
+        point.value.toFixed(
+          1
+        ),
+        x,
+        y - 8
+      );
+
+    }
+  );
+
+
+  /*
+    날짜 라벨
+
+    기록이 많아지면 모든 날짜를
+    표시하지 않고 시작/중간/끝만
+    표시해서 겹침을 막는다.
+  */
+
+  let labelIndexes = [];
+
+
+  if (
+    points.length <= 4
+  ) {
+
+    labelIndexes =
+      points.map(
+        (_, index) =>
+          index
+      );
+
+  } else {
+
+    labelIndexes = [
       0,
-      Math.PI * 2
-    );
-
-    ctx.fill();
-  });
-
-  const labelIndexes =
-    points.length <= 3
-      ? points.map(
-          (_, index) => index
-        )
-      : [
-          0,
-          Math.floor(
-            (points.length - 1) / 2
-          ),
-          points.length - 1
-        ];
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = textColor;
-
-  labelIndexes.forEach((index) => {
-    const point =
-      points[index];
-
-    ctx.fillText(
-      formatShortDate(
-        point.date
+      Math.floor(
+        (
+          points.length -
+          1
+        ) / 2
       ),
-      pointX(index),
-      height - 10
-    );
-  });
+      points.length - 1
+    ];
+
+  }
+
+
+  ctx.font =
+    "10px -apple-system, BlinkMacSystemFont, sans-serif";
+
+  ctx.textAlign =
+    "center";
+
+  ctx.textBaseline =
+    "alphabetic";
+
+  ctx.fillStyle =
+    textColor;
+
+
+  labelIndexes.forEach(
+    (index) => {
+
+      const point =
+        points[index];
+
+
+      ctx.fillText(
+        formatShortDate(
+          point.date
+        ),
+        pointX(index),
+        height - 10
+      );
+
+    }
+  );
 }
+
+
+/* =========================================================
+   RESIZE CHART
+========================================================= */
+
+let chartResizeTimer =
+  null;
+
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    clearTimeout(
+      chartResizeTimer
+    );
+
+
+    chartResizeTimer =
+      setTimeout(
+        () => {
+
+          const growthView =
+            $("growthView");
+
+
+          if (
+            growthView
+              .classList
+              .contains(
+                "active"
+              )
+          ) {
+
+            renderGrowthChart();
+
+          }
+
+        },
+        100
+      );
+
+  }
+);
 
 
 /* =========================================================
    UTILITIES
 ========================================================= */
 
-function optionalNumber(value) {
-  if (value === "") return null;
+function optionalNumber(
+  value
+) {
+  if (
+    value === "" ||
+    value == null
+  ) {
+    return null;
+  }
+
 
   const number =
     Number(value);
 
-  return Number.isFinite(number)
+
+  return Number.isFinite(
+    number
+  )
     ? number
     : null;
 }
 
-function formatNumber(value) {
+
+function formatNumber(
+  value
+) {
   const number =
     Number(value);
 
-  if (!Number.isFinite(number)) {
-    return value;
+
+  if (
+    !Number.isFinite(
+      number
+    )
+  ) {
+    return String(value);
   }
 
-  return Number.isInteger(number)
+
+  return Number.isInteger(
+    number
+  )
     ? String(number)
     : number.toFixed(1);
 }
 
-function escapeHtml(value) {
+
+function escapeHtml(
+  value
+) {
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 }
 
 
@@ -1904,20 +3890,32 @@ function escapeHtml(value) {
    SERVICE WORKER
 ========================================================= */
 
-if ("serviceWorker" in navigator) {
+if (
+  "serviceWorker" in
+  navigator
+) {
+
   window.addEventListener(
     "load",
     () => {
-      navigator.serviceWorker
+
+      navigator
+        .serviceWorker
         .register("./sw.js")
-        .catch((error) => {
-          console.error(
-            "Service Worker 등록 실패:",
-            error
-          );
-        });
+        .catch(
+          (error) => {
+
+            console.error(
+              "Service Worker 등록 실패:",
+              error
+            );
+
+          }
+        );
+
     }
   );
+
 }
 
 
