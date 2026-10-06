@@ -1,267 +1,1271 @@
 <!doctype html>
 <html lang="ko">
+
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f7f7f8" />
 
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Protein" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta name="theme-color" content="#f5f5f5" />
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  />
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  />
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Protein"
+  />
+
+  <link
+    rel="manifest"
+    href="manifest.json"
+  />
+
+  <link
+    rel="apple-touch-icon"
+    href="icon-192.png"
+  />
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  />
 
   <title>Protein Tracker</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
+
 <body>
 
-  <!-- 로그인 화면 -->
-  <div id="loginScreen" class="login-screen hidden">
+
+  <!-- =========================
+       로그인
+  ========================== -->
+
+  <div
+    id="loginScreen"
+    class="login-screen hidden"
+  >
+
     <div class="login-card">
-      <p class="login-eyebrow">PROTEIN TRACKER</p>
-      <h1>로그인</h1>
-      <p class="login-description">
-        같은 계정으로 로그인하면<br>
+
+      <p class="eyebrow">
+        PROTEIN TRACKER
+      </p>
+
+      <h1>
+        로그인
+      </h1>
+
+      <p class="subtext">
+        같은 계정으로 로그인하면
         모든 기기에서 기록이 동기화됩니다.
       </p>
 
+
       <form id="loginForm">
-        <label>
-          이메일
+
+        <label class="field">
+
+          <span>이메일</span>
+
           <input
             id="loginEmail"
             type="email"
             autocomplete="email"
             required
           />
+
         </label>
 
-        <label>
-          비밀번호
+
+        <label class="field">
+
+          <span>비밀번호</span>
+
           <input
             id="loginPassword"
             type="password"
             autocomplete="current-password"
             required
           />
+
         </label>
 
-        <button type="submit" class="save-btn">
+
+        <button
+          type="submit"
+          class="button button-dark"
+        >
           로그인
         </button>
 
-        <p id="loginError" class="login-error"></p>
+
+        <p
+          id="loginError"
+          class="form-error"
+        ></p>
+
       </form>
+
     </div>
+
   </div>
 
 
-  <!-- 앱 -->
-  <main id="appScreen" class="app hidden">
 
-    <header class="topbar">
-      <div>
-        <div id="todayLabel" class="date"></div>
-        <h1>오늘의 단백질</h1>
-      </div>
+  <!-- =========================
+       앱
+  ========================== -->
 
-      <div class="header-actions">
-        <button id="goalBtn" class="ghost-btn">
-          목표
-        </button>
-
-        <button id="logoutBtn" class="ghost-btn">
-          로그아웃
-        </button>
-      </div>
-    </header>
+  <div
+    id="appScreen"
+    class="app-shell hidden"
+  >
 
 
-    <section class="summary-card">
-
-      <div class="protein-main">
-        <span id="totalProtein">0.0</span>
-        <span class="unit">g</span>
-      </div>
-
-      <div class="goal-row">
-        <span>
-          목표 <strong id="goalText">75</strong>g
-        </span>
-
-        <span id="remainingText">
-          75.0g 남음
-        </span>
-      </div>
-
-      <div class="progress-track">
-        <div id="progressBar" class="progress-bar"></div>
-      </div>
-
-    </section>
+    <main class="main-content">
 
 
-    <section class="section">
+      <!-- =====================
+           오늘
+      ====================== -->
 
-      <div class="section-head">
-        <h2>오늘 먹은 음식</h2>
-
-        <button id="addBtn" class="primary-btn">
-          + 음식 추가
-        </button>
-      </div>
-
-      <div id="foodList" class="food-list"></div>
-
-      <div id="emptyState" class="empty-state">
-        아직 기록이 없어요.<br>
-        먹은 음식을 추가해보세요.
-      </div>
-
-    </section>
-
-  </main>
+      <section
+        id="todayView"
+        class="view active"
+      >
 
 
-  <!-- 음식 추가 / 수정 -->
-  <dialog id="foodDialog">
+        <header class="page-header">
 
-    <form id="foodForm" class="sheet">
+          <div>
 
-      <div class="sheet-head">
-        <h3 id="foodDialogTitle">음식 추가</h3>
+            <p class="eyebrow">
+              PROTEIN TRACKER
+            </p>
 
-        <button
-          type="button"
-          id="closeFoodDialog"
-          class="icon-btn"
-        >
-          ✕
-        </button>
-      </div>
+            <h1>
+              오늘
+            </h1>
+
+          </div>
 
 
-      <label>
-        음식 이름
+          <button
+            id="settingsBtn"
+            class="text-button"
+            type="button"
+          >
+            설정
+          </button>
+
+        </header>
+
+
+
+        <!-- 날짜 이동 -->
+
+        <section class="date-navigation">
+
+          <button
+            id="prevDateBtn"
+            class="round-button"
+            type="button"
+            aria-label="이전 날짜"
+          >
+            ‹
+          </button>
+
+
+          <button
+            id="datePickerBtn"
+            class="date-button"
+            type="button"
+          >
+
+            <span id="selectedDateLabel">
+              10월 6일 화요일
+            </span>
+
+            <span
+              id="selectedDateSub"
+              class="date-sub"
+            >
+              오늘
+            </span>
+
+          </button>
+
+
+          <button
+            id="nextDateBtn"
+            class="round-button"
+            type="button"
+            aria-label="다음 날짜"
+          >
+            ›
+          </button>
+
+        </section>
+
 
         <input
-          id="foodName"
-          type="text"
-          placeholder="예: 부채살"
-          required
+          id="datePicker"
+          class="native-date-picker"
+          type="date"
         />
+
+
+
+        <!-- 단백질 요약 -->
+
+        <section class="protein-summary">
+
+          <div class="summary-top">
+
+            <div>
+
+              <p class="section-label">
+                단백질
+              </p>
+
+              <div class="protein-number">
+
+                <span id="totalProtein">
+                  0.0
+                </span>
+
+                <span class="protein-unit">
+                  g
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div class="summary-percent">
+
+              <strong id="goalPercent">
+                0%
+              </strong>
+
+              <span>
+                목표 달성
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="progress-track">
+
+            <div
+              id="progressBar"
+              class="progress-bar"
+            ></div>
+
+          </div>
+
+
+          <div class="summary-bottom">
+
+            <span>
+              목표
+              <strong id="goalText">
+                75
+              </strong>g
+            </span>
+
+            <span id="remainingText">
+              75.0g 남음
+            </span>
+
+          </div>
+
+        </section>
+
+
+
+        <!-- 즐겨찾기 -->
+
+        <section class="content-section">
+
+          <div class="section-heading">
+
+            <h2>
+              즐겨찾기
+            </h2>
+
+          </div>
+
+
+          <div
+            id="favoriteFoods"
+            class="favorite-list"
+          >
+
+            <p class="empty-inline">
+              즐겨찾기한 음식이 여기에 표시됩니다.
+            </p>
+
+          </div>
+
+        </section>
+
+
+
+        <!-- 음식 기록 -->
+
+        <section class="content-section food-section">
+
+          <div class="section-heading">
+
+            <h2>
+              먹은 음식
+            </h2>
+
+
+            <button
+              id="addBtn"
+              class="text-button"
+              type="button"
+            >
+              + 추가
+            </button>
+
+          </div>
+
+
+          <div
+            id="foodList"
+            class="food-list"
+          ></div>
+
+
+          <div
+            id="emptyState"
+            class="empty-state"
+          >
+
+            <p>
+              아직 기록이 없습니다.
+            </p>
+
+            <button
+              id="emptyAddBtn"
+              class="button button-light"
+              type="button"
+            >
+              음식 추가하기
+            </button>
+
+          </div>
+
+        </section>
+
+
+      </section>
+
+
+
+      <!-- =====================
+           캘린더
+      ====================== -->
+
+      <section
+        id="calendarView"
+        class="view"
+      >
+
+
+        <header class="page-header">
+
+          <div>
+
+            <p class="eyebrow">
+              HISTORY
+            </p>
+
+            <h1>
+              캘린더
+            </h1>
+
+          </div>
+
+        </header>
+
+
+
+        <section class="calendar-card">
+
+          <div class="calendar-header">
+
+            <button
+              id="prevMonthBtn"
+              class="round-button"
+              type="button"
+            >
+              ‹
+            </button>
+
+
+            <h2 id="calendarMonthLabel">
+              2026년 10월
+            </h2>
+
+
+            <button
+              id="nextMonthBtn"
+              class="round-button"
+              type="button"
+            >
+              ›
+            </button>
+
+          </div>
+
+
+          <div class="weekday-row">
+
+            <span>일</span>
+            <span>월</span>
+            <span>화</span>
+            <span>수</span>
+            <span>목</span>
+            <span>금</span>
+            <span>토</span>
+
+          </div>
+
+
+          <div
+            id="calendarGrid"
+            class="calendar-grid"
+          ></div>
+
+        </section>
+
+
+
+        <section class="monthly-summary">
+
+          <div>
+
+            <span>
+              평균 단백질
+            </span>
+
+            <strong id="monthlyAverageProtein">
+              —
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              평균 달성률
+            </span>
+
+            <strong id="monthlyAveragePercent">
+              —
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              목표 달성
+            </span>
+
+            <strong id="monthlyGoalDays">
+              —
+            </strong>
+
+          </div>
+
+        </section>
+
+
+      </section>
+
+
+
+      <!-- =====================
+           성장
+      ====================== -->
+
+      <section
+        id="growthView"
+        class="view"
+      >
+
+
+        <header class="page-header">
+
+          <div>
+
+            <p class="eyebrow">
+              GROWTH
+            </p>
+
+            <h1>
+              나의 성장
+            </h1>
+
+          </div>
+
+
+          <button
+            id="profileBtn"
+            class="text-button"
+            type="button"
+          >
+            내 정보
+          </button>
+
+        </header>
+
+
+
+        <!-- 최근 측정 -->
+
+        <section class="growth-summary">
+
+          <div class="section-heading">
+
+            <h2>
+              최근 측정
+            </h2>
+
+            <span
+              id="latestBodyDate"
+              class="muted"
+            >
+              기록 없음
+            </span>
+
+          </div>
+
+
+          <div class="metric-grid">
+
+
+            <div class="metric">
+
+              <span>
+                체중
+              </span>
+
+              <strong id="latestWeight">
+                —
+              </strong>
+
+              <small>
+                kg
+              </small>
+
+            </div>
+
+
+            <div class="metric">
+
+              <span>
+                골격근량
+              </span>
+
+              <strong id="latestMuscle">
+                —
+              </strong>
+
+              <small>
+                kg
+              </small>
+
+            </div>
+
+
+            <div class="metric">
+
+              <span>
+                체지방량
+              </span>
+
+              <strong id="latestBodyFat">
+                —
+              </strong>
+
+              <small>
+                kg
+              </small>
+
+            </div>
+
+
+          </div>
+
+
+          <button
+            id="addBodyRecordBtn"
+            class="button button-light full-width"
+            type="button"
+          >
+            + 새로운 측정 기록
+          </button>
+
+        </section>
+
+
+
+        <!-- 그래프 -->
+
+        <section class="growth-chart-section">
+
+          <div class="section-heading">
+
+            <h2>
+              변화
+            </h2>
+
+          </div>
+
+
+          <div
+            class="segmented-control"
+            id="chartSelector"
+          >
+
+            <button
+              type="button"
+              class="active"
+              data-chart="muscle"
+            >
+              골격근량
+            </button>
+
+            <button
+              type="button"
+              data-chart="weight"
+            >
+              체중
+            </button>
+
+            <button
+              type="button"
+              data-chart="fat"
+            >
+              체지방량
+            </button>
+
+          </div>
+
+
+          <div class="chart-container">
+
+            <canvas id="growthChart"></canvas>
+
+
+            <div
+              id="chartEmpty"
+              class="chart-empty"
+            >
+              측정 기록을 추가하면<br />
+              변화가 여기에 표시됩니다.
+            </div>
+
+          </div>
+
+        </section>
+
+
+      </section>
+
+
+    </main>
+
+
+
+    <!-- =====================
+         하단 메뉴
+    ====================== -->
+
+    <nav class="bottom-nav">
+
+      <button
+        type="button"
+        class="nav-item active"
+        data-view="today"
+      >
+
+        <span class="nav-icon">
+          ○
+        </span>
+
+        <span>
+          오늘
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-view="calendar"
+      >
+
+        <span class="nav-icon">
+          □
+        </span>
+
+        <span>
+          캘린더
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        data-view="growth"
+      >
+
+        <span class="nav-icon">
+          △
+        </span>
+
+        <span>
+          성장
+        </span>
+
+      </button>
+
+    </nav>
+
+
+  </div>
+
+
+
+  <!-- =========================
+       음식 추가 / 수정
+  ========================== -->
+
+  <dialog id="foodDialog">
+
+    <div class="sheet">
+
+
+      <div class="sheet-header">
+
+        <div>
+
+          <p class="eyebrow">
+            FOOD
+          </p>
+
+          <h2 id="foodDialogTitle">
+            음식 추가
+          </h2>
+
+        </div>
+
+
+        <button
+          id="closeFoodDialog"
+          class="close-button"
+          type="button"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+
+      <!-- 음식 검색 -->
+
+      <div
+        id="foodSearchStep"
+        class="food-step"
+      >
+
+        <label class="search-box">
+
+          <span>
+            검색
+          </span>
+
+          <input
+            id="foodSearchInput"
+            type="search"
+            placeholder="계란, 소고기, 두유..."
+          />
+
+        </label>
+
+
+        <div class="dialog-section">
+
+          <h3>
+            즐겨찾기
+          </h3>
+
+          <div
+            id="dialogFavorites"
+            class="food-search-results"
+          ></div>
+
+        </div>
+
+
+        <div class="dialog-section">
+
+          <h3>
+            음식
+          </h3>
+
+          <div
+            id="foodSearchResults"
+            class="food-search-results"
+          ></div>
+
+        </div>
+
+
+        <button
+          id="manualFoodBtn"
+          class="button button-light full-width"
+          type="button"
+        >
+          + 직접 입력하기
+        </button>
+
+      </div>
+
+
+
+      <!-- 선택한 음식 -->
+
+      <form
+        id="databaseFoodForm"
+        class="food-step hidden"
+      >
+
+        <button
+          id="backToFoodSearch"
+          class="back-button"
+          type="button"
+        >
+          ‹ 음식 검색
+        </button>
+
+
+        <div class="selected-food-heading">
+
+          <h3 id="selectedFoodName">
+            계란
+          </h3>
+
+
+          <button
+            id="favoriteToggleBtn"
+            class="favorite-button"
+            type="button"
+          >
+            ☆
+          </button>
+
+        </div>
+
+
+        <div class="amount-row">
+
+          <label class="field">
+
+            <span>
+              먹은 양
+            </span>
+
+            <input
+              id="databaseFoodAmount"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.1"
+              required
+            />
+
+          </label>
+
+
+          <div class="unit-display">
+
+            <span>
+              단위
+            </span>
+
+            <strong id="databaseFoodUnit">
+              개
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="calculated-values">
+
+          <div>
+
+            <span>
+              예상 중량
+            </span>
+
+            <strong id="estimatedWeight">
+              —
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              예상 단백질
+            </span>
+
+            <strong id="estimatedProtein">
+              —
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <button
+          type="submit"
+          class="button button-dark full-width"
+        >
+          기록하기
+        </button>
+
+      </form>
+
+
+
+      <!-- 직접 입력 -->
+
+      <form
+        id="manualFoodForm"
+        class="food-step hidden"
+      >
+
+        <button
+          id="backFromManual"
+          class="back-button"
+          type="button"
+        >
+          ‹ 음식 검색
+        </button>
+
+
+        <label class="field">
+
+          <span>
+            음식 이름
+          </span>
+
+          <input
+            id="manualFoodName"
+            type="text"
+            required
+          />
+
+        </label>
+
+
+        <div class="two-column">
+
+          <label class="field">
+
+            <span>
+              먹은 양
+            </span>
+
+            <input
+              id="manualAmount"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.1"
+              required
+            />
+
+          </label>
+
+
+          <label class="field">
+
+            <span>
+              단위
+            </span>
+
+            <select id="manualUnit">
+
+              <option value="g">
+                g
+              </option>
+
+              <option value="개">
+                개
+              </option>
+
+              <option value="ml">
+                ml
+              </option>
+
+              <option value="스푼">
+                스푼
+              </option>
+
+              <option value="팩">
+                팩
+              </option>
+
+              <option value="장">
+                장
+              </option>
+
+            </select>
+
+          </label>
+
+        </div>
+
+
+        <label class="field">
+
+          <span>
+            먹은 양 전체의 단백질
+          </span>
+
+          <div class="input-with-unit">
+
+            <input
+              id="manualProtein"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.1"
+              required
+            />
+
+            <span>
+              g
+            </span>
+
+          </div>
+
+        </label>
+
+
+        <label class="check-row">
+
+          <input
+            id="saveAsMyFood"
+            type="checkbox"
+          />
+
+          <span>
+            내 음식으로 저장
+          </span>
+
+        </label>
+
+
+        <button
+          id="manualFoodSaveBtn"
+          type="submit"
+          class="button button-dark full-width"
+        >
+          기록하기
+        </button>
+
+      </form>
+
+
+    </div>
+
+  </dialog>
+
+
+
+  <!-- =========================
+       프로필
+  ========================== -->
+
+  <dialog id="profileDialog">
+
+    <form
+      id="profileForm"
+      class="sheet"
+    >
+
+      <div class="sheet-header">
+
+        <div>
+
+          <p class="eyebrow">
+            PROFILE
+          </p>
+
+          <h2>
+            내 정보
+          </h2>
+
+        </div>
+
+
+        <button
+          id="closeProfileDialog"
+          class="close-button"
+          type="button"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <label class="field">
+
+        <span>
+          성별
+        </span>
+
+        <select id="profileSex">
+
+          <option value="">
+            선택 안 함
+          </option>
+
+          <option value="female">
+            여성
+          </option>
+
+          <option value="male">
+            남성
+          </option>
+
+          <option value="other">
+            기타
+          </option>
+
+        </select>
+
       </label>
 
 
-      <div class="two-col">
+      <label class="field">
 
-        <label>
-          먹은 양
+        <span>
+          생년월일
+        </span>
+
+        <input
+          id="profileBirthDate"
+          type="date"
+        />
+
+      </label>
+
+
+      <label class="field">
+
+        <span>
+          키
+        </span>
+
+        <div class="input-with-unit">
 
           <input
-            id="amount"
+            id="profileHeight"
             type="number"
             inputmode="decimal"
             min="0"
             step="0.1"
-            placeholder="167"
-            required
-          />
-        </label>
-
-
-        <label>
-          단위
-
-          <select id="unit">
-            <option value="g">g</option>
-            <option value="개">개</option>
-            <option value="ml">ml</option>
-            <option value="스푼">스푼</option>
-            <option value="팩">팩</option>
-          </select>
-
-        </label>
-
-      </div>
-
-
-      <fieldset>
-
-        <legend>단백질 계산 방식</legend>
-
-        <label class="radio-row">
-
-          <input
-            type="radio"
-            name="calcMode"
-            value="per100"
-            checked
           />
 
-          100g/ml당 단백질로 계산
+          <span>
+            cm
+          </span>
 
-        </label>
-
-
-        <label class="radio-row">
-
-          <input
-            type="radio"
-            name="calcMode"
-            value="direct"
-          />
-
-          먹은 양 전체의 단백질 직접 입력
-
-        </label>
-
-      </fieldset>
-
-
-      <label id="per100Wrap">
-
-        100g/ml당 단백질
-
-        <input
-          id="proteinPer100"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="0.1"
-          placeholder="21"
-        />
+        </div>
 
       </label>
 
 
-      <label id="directWrap" class="hidden">
+      <label class="field">
 
-        먹은 양 전체 단백질
+        <span>
+          하루 단백질 목표
+        </span>
 
-        <input
-          id="directProtein"
-          type="number"
-          inputmode="decimal"
-          min="0"
-          step="0.1"
-          placeholder="6.5"
-        />
+        <div class="input-with-unit">
+
+          <input
+            id="profileProteinGoal"
+            type="number"
+            inputmode="decimal"
+            min="1"
+            step="1"
+            required
+          />
+
+          <span>
+            g
+          </span>
+
+        </div>
 
       </label>
 
 
       <button
-        id="foodSaveBtn"
         type="submit"
-        class="save-btn"
+        class="button button-dark full-width"
       >
-        추가하기
+        저장
+      </button>
+
+
+      <button
+        id="logoutBtn"
+        type="button"
+        class="button button-plain full-width"
+      >
+        로그아웃
       </button>
 
     </form>
@@ -269,45 +1273,137 @@
   </dialog>
 
 
-  <!-- 목표 -->
-  <dialog id="goalDialog">
 
-    <form id="goalForm" class="sheet compact">
+  <!-- =========================
+       체성분 기록
+  ========================== -->
 
-      <div class="sheet-head">
+  <dialog id="bodyRecordDialog">
 
-        <h3>하루 목표</h3>
+    <form
+      id="bodyRecordForm"
+      class="sheet"
+    >
+
+      <div class="sheet-header">
+
+        <div>
+
+          <p class="eyebrow">
+            BODY
+          </p>
+
+          <h2>
+            측정 기록
+          </h2>
+
+        </div>
+
 
         <button
+          id="closeBodyRecordDialog"
+          class="close-button"
           type="button"
-          id="closeGoalDialog"
-          class="icon-btn"
         >
-          ✕
+          ×
         </button>
 
       </div>
 
 
-      <label>
+      <label class="field">
 
-        목표 단백질(g)
+        <span>
+          측정일
+        </span>
 
         <input
-          id="goalInput"
-          type="number"
-          inputmode="decimal"
-          min="1"
-          step="1"
+          id="bodyRecordDate"
+          type="date"
           required
         />
 
       </label>
 
 
+      <label class="field">
+
+        <span>
+          체중
+        </span>
+
+        <div class="input-with-unit">
+
+          <input
+            id="bodyWeight"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.1"
+          />
+
+          <span>
+            kg
+          </span>
+
+        </div>
+
+      </label>
+
+
+      <label class="field">
+
+        <span>
+          골격근량
+        </span>
+
+        <div class="input-with-unit">
+
+          <input
+            id="bodyMuscle"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.1"
+          />
+
+          <span>
+            kg
+          </span>
+
+        </div>
+
+      </label>
+
+
+      <label class="field">
+
+        <span>
+          체지방량
+        </span>
+
+        <div class="input-with-unit">
+
+          <input
+            id="bodyFat"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.1"
+          />
+
+          <span>
+            kg
+          </span>
+
+        </div>
+
+      </label>
+
+
       <button
         type="submit"
-        class="save-btn"
+        class="button button-dark full-width"
       >
         저장
       </button>
@@ -317,7 +1413,9 @@
   </dialog>
 
 
+
   <script src="app.js"></script>
 
 </body>
+
 </html>
