@@ -1,4 +1,4 @@
-const CACHE = "protein-tracker-v3";
+const CACHE = "protein-tracker-v5";
 
 const ASSETS = [
   "./",
