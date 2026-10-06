@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f7f8" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Protein" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Protein Tracker</title>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <div id="todayLabel" class="date"></div>
+        <h1>오늘의 단백질</h1>
+      </div>
+      <button id="goalBtn" class="ghost-btn" aria-label="목표 설정">목표</button>
+    </header>
+
+    <section class="summary-card">
+      <div class="protein-main">
+        <span id="totalProtein">0.0</span><span class="unit"> g</span>
+      </div>
+      <div class="goal-row">
+        <span>목표 <strong id="goalText">75</strong>g</span>
+        <span id="remainingText">75.0g 남음</span>
+      </div>
+      <div class="progress-track">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>오늘 먹은 음식</h2>
+        <button id="addBtn" class="primary-btn">+ 음식 추가</button>
+      </div>
+      <div id="foodList" class="food-list"></div>
+      <div id="emptyState" class="empty-state">
+        아직 기록이 없어요.<br />
+        먹은 음식을 추가해보세요.
+      </div>
+    </section>
+  </main>
+
+  <dialog id="foodDialog">
+    <form id="foodForm" method="dialog" class="sheet">
+      <div class="sheet-head">
+        <h3>음식 추가</h3>
+        <button type="button" id="closeFoodDialog" class="icon-btn">✕</button>
+      </div>
+
+      <label>
+        음식 이름
+        <input id="foodName" type="text" placeholder="예: 부채살" required />
+      </label>
+
+      <div class="two-col">
+        <label>
+          먹은 양
+          <input id="amount" type="number" inputmode="decimal" min="0" step="0.1" placeholder="167" required />
+        </label>
+        <label>
+          단위
+          <select id="unit">
+            <option value="g">g</option>
+            <option value="개">개</option>
+            <option value="ml">ml</option>
+            <option value="스푼">스푼</option>
+            <option value="팩">팩</option>
+          </select>
+        </label>
+      </div>
+
+      <fieldset>
+        <legend>단백질 계산 방식</legend>
+        <label class="radio-row">
+          <input type="radio" name="calcMode" value="per100" checked />
+          100g/ml당 단백질로 계산
+        </label>
+        <label class="radio-row">
+          <input type="radio" name="calcMode" value="direct" />
+          먹은 양 전체의 단백질 직접 입력
+        </label>
+      </fieldset>
+
+      <label id="per100Wrap">
+        100g/ml당 단백질
+        <input id="proteinPer100" type="number" inputmode="decimal" min="0" step="0.1" placeholder="21" />
+      </label>
+
+      <label id="directWrap" class="hidden">
+        먹은 양 전체 단백질
+        <input id="directProtein" type="number" inputmode="decimal" min="0" step="0.1" placeholder="6.5" />
+      </label>
+
+      <button class="save-btn" value="default">추가하기</button>
+    </form>
+  </dialog>
+
+  <dialog id="goalDialog">
+    <form id="goalForm" method="dialog" class="sheet compact">
+      <div class="sheet-head">
+        <h3>하루 목표</h3>
+        <button type="button" id="closeGoalDialog" class="icon-btn">✕</button>
+      </div>
+      <label>
+        목표 단백질(g)
+        <input id="goalInput" type="number" inputmode="decimal" min="1" step="1" required />
+      </label>
+      <button class="save-btn" value="default">저장</button>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
