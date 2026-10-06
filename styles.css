@@ -281,3 +281,91 @@ fieldset legend {
   fieldset { border-color: #38383e; }
   .primary-btn, .save-btn { background: #f6f6f7; color: #111113; }
 }
+
+/* Supabase 로그인 */
+
+.login-screen {
+  min-height: 100vh;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-screen.hidden {
+  display: none;
+}
+
+.login-card {
+  width: min(100%, 420px);
+  background: white;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.045);
+}
+
+.login-eyebrow {
+  margin: 0 0 8px;
+  color: #8a8a91;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.login-card h1 {
+  margin-bottom: 8px;
+}
+
+.login-description {
+  margin: 0 0 26px;
+  color: #77777f;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.login-card form {
+  display: grid;
+  gap: 16px;
+}
+
+.login-error {
+  margin: 0;
+  min-height: 18px;
+  color: #d33;
+  font-size: 13px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.record-actions {
+  grid-column: 1 / -1;
+  justify-self: end;
+  display: flex;
+  gap: 12px;
+}
+
+.edit-btn,
+.delete-btn {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.edit-btn {
+  color: #55555c;
+}
+
+.delete-btn {
+  color: #a1a1a8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .login-card {
+    background: #1c1c1f;
+  }
+}
