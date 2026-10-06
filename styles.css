@@ -1,6 +1,5 @@
 /* =========================================================
    PROTEIN TRACKER
-   Monochrome UI
 ========================================================= */
 
 * {
@@ -91,14 +90,18 @@ p {
 
 h1 {
   margin-bottom: 0;
+
   font-size: 30px;
   line-height: 1.15;
+
   letter-spacing: -0.045em;
 }
 
 h2 {
   margin-bottom: 0;
+
   font-size: 18px;
+
   letter-spacing: -0.025em;
 }
 
@@ -108,27 +111,35 @@ h3 {
 
 .eyebrow {
   margin-bottom: 7px;
+
   color: var(--text-secondary);
+
   font-size: 11px;
   font-weight: 700;
+
   letter-spacing: 0.13em;
 }
 
 .subtext {
   margin: 0;
+
   color: var(--text-secondary);
+
   font-size: 14px;
   line-height: 1.6;
 }
 
 .muted {
   color: var(--text-secondary);
+
   font-size: 13px;
 }
 
 .section-label {
   margin: 0 0 7px;
+
   color: var(--text-secondary);
+
   font-size: 13px;
   font-weight: 600;
 }
@@ -168,7 +179,9 @@ h3 {
 
 .login-card form {
   display: grid;
+
   gap: 18px;
+
   margin-top: 30px;
 }
 
@@ -234,6 +247,7 @@ h3 {
 
 .text-button {
   border: 0;
+
   background: transparent;
 
   padding: 6px 0;
@@ -282,19 +296,22 @@ h3 {
 
 .button-dark {
   background: var(--black);
+
   color: var(--white);
 }
 
 .button-light {
   background: var(--surface-soft);
+
   color: var(--text);
 }
 
 .button-plain {
-  background: transparent;
-  color: var(--text-secondary);
-
   margin-top: 8px;
+
+  background: transparent;
+
+  color: var(--text-secondary);
 }
 
 .full-width {
@@ -319,6 +336,7 @@ h3 {
 
 .date-button {
   min-width: 0;
+
   flex: 1;
 
   display: flex;
@@ -326,6 +344,7 @@ h3 {
   align-items: center;
 
   border: 0;
+
   background: transparent;
 
   padding: 5px 8px;
@@ -357,6 +376,7 @@ h3 {
   height: 1px;
 
   opacity: 0;
+
   pointer-events: none;
 }
 
@@ -395,6 +415,7 @@ h3 {
   font-weight: 720;
 
   line-height: 1;
+
   letter-spacing: -0.06em;
 }
 
@@ -505,7 +526,7 @@ h3 {
 
 
 /* =========================================================
-   FOOD RECORD LIST
+   FOOD RECORD
 ========================================================= */
 
 .food-list {
@@ -534,6 +555,7 @@ h3 {
   min-width: 0;
 
   overflow: hidden;
+
   text-overflow: ellipsis;
   white-space: nowrap;
 
@@ -568,6 +590,7 @@ h3 {
   gap: 14px;
 
   padding-top: 8px;
+
   margin-top: 5px;
 
   border-top: 1px solid var(--surface-soft);
@@ -576,6 +599,7 @@ h3 {
 .edit-btn,
 .delete-btn {
   border: 0;
+
   background: transparent;
 
   padding: 0;
@@ -605,7 +629,7 @@ h3 {
 
 
 /* =========================================================
-   BOTTOM NAVIGATION
+   BOTTOM NAV
 ========================================================= */
 
 .bottom-nav {
@@ -621,7 +645,9 @@ h3 {
   width: min(100%, 680px);
 
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, 1fr);
 
   padding:
     10px
@@ -629,7 +655,8 @@ h3 {
     calc(8px + env(safe-area-inset-bottom))
     max(18px, env(safe-area-inset-right));
 
-  background: rgba(244, 244, 242, 0.94);
+  background:
+    rgba(244, 244, 242, 0.94);
 
   border-top: 1px solid var(--line);
 
@@ -645,6 +672,7 @@ h3 {
   gap: 4px;
 
   border: 0;
+
   background: transparent;
 
   padding: 5px;
@@ -674,7 +702,7 @@ h3 {
 ========================================================= */
 
 .calendar-card {
-  padding: 20px 14px 24px;
+  padding: 20px 10px 24px;
 
   background: var(--surface);
 
@@ -686,7 +714,7 @@ h3 {
   align-items: center;
   justify-content: space-between;
 
-  margin-bottom: 25px;
+  margin: 0 6px 25px;
 }
 
 .calendar-header h2 {
@@ -696,7 +724,9 @@ h3 {
 .weekday-row,
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+
+  grid-template-columns:
+    repeat(7, minmax(0, 1fr));
 }
 
 .weekday-row {
@@ -705,14 +735,9 @@ h3 {
   color: var(--text-light);
 
   font-size: 10px;
+
   text-align: center;
 }
-
-
-/*
-  각 날짜에 원 + 단백질 정보가 들어가므로
-  기존 정사각형 셀보다 세로 공간을 넉넉히 준다.
-*/
 
 .calendar-grid {
   row-gap: 12px;
@@ -722,13 +747,16 @@ h3 {
   position: relative;
 
   min-width: 0;
-  min-height: 62px;
+  min-height: 72px;
 
   display: flex;
   align-items: flex-start;
   justify-content: center;
 
+  overflow: hidden;
+
   border: 0;
+
   background: transparent;
 
   padding: 1px 0 0;
@@ -742,25 +770,21 @@ h3 {
   opacity: 0.25;
 }
 
-
-/* ---------------------------------------------------------
-   DATE CONTENT
---------------------------------------------------------- */
-
 .calendar-day-content {
   width: 100%;
+  min-width: 0;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  gap: 5px;
+  gap: 4px;
 }
 
 
-/* ---------------------------------------------------------
-   CIRCULAR PROGRESS
---------------------------------------------------------- */
+/* =========================================================
+   CALENDAR RING
+========================================================= */
 
 .calendar-ring {
   position: relative;
@@ -768,11 +792,11 @@ h3 {
   width: 40px;
   height: 40px;
 
+  flex: 0 0 40px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-
-  flex: 0 0 40px;
 
   border-radius: 50%;
 
@@ -821,9 +845,6 @@ h3 {
   transform: rotate(90deg);
 }
 
-
-/* 선택된 날짜 */
-
 .calendar-day.selected
 .calendar-ring::after {
   background: var(--text);
@@ -836,24 +857,15 @@ h3 {
   font-weight: 750;
 }
 
-
-/* 오늘 */
-
 .calendar-day.today:not(.selected)
 .calendar-ring-inner {
   font-weight: 800;
 }
 
-
-/* 기록 없는 날짜 */
-
 .calendar-day.no-record
 .calendar-ring {
   background: var(--surface-soft);
 }
-
-
-/* 목표 100% 이상 */
 
 .calendar-day.complete
 .calendar-ring {
@@ -861,42 +873,60 @@ h3 {
 }
 
 
-/* ---------------------------------------------------------
-   PROTEIN TEXT UNDER DATE
---------------------------------------------------------- */
+/* =========================================================
+   CALENDAR PROTEIN TEXT
+========================================================= */
 
 .calendar-protein {
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 1px;
+
+  color: var(--text-secondary);
+
+  line-height: 1.05;
+
+  text-align: center;
+}
+
+.calendar-protein-grams,
+.calendar-protein-percent {
   display: block;
 
   width: 100%;
 
-  color: var(--text-secondary);
-
-  font-size: 8px;
-  font-weight: 600;
-
-  line-height: 1.1;
-
-  letter-spacing: -0.025em;
+  overflow: hidden;
 
   text-align: center;
 
   white-space: nowrap;
 }
 
+.calendar-protein-grams {
+  font-size: 8px;
+  font-weight: 650;
+
+  letter-spacing: -0.025em;
+}
+
+.calendar-protein-percent {
+  color: var(--text-light);
+
+  font-size: 7px;
+  font-weight: 550;
+}
+
 .calendar-protein-empty {
   visibility: hidden;
 }
 
-
-/*
-  선택된 날짜에서도
-  아래 단백질 정보는 검은색 원과 별개로
-  정상적으로 보이게 한다.
-*/
-
 .calendar-day.selected
-.calendar-protein {
+.calendar-protein-grams {
   color: var(--text);
 }
 
@@ -907,7 +937,9 @@ h3 {
 
 .monthly-summary {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+
+  grid-template-columns:
+    repeat(3, 1fr);
 
   gap: 8px;
 
@@ -958,17 +990,14 @@ h3 {
 
 
 /* =========================================================
-   BODY METRICS
+   MAIN BODY METRICS
 ========================================================= */
 
 .metric-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(
-      3,
-      minmax(0, 1fr)
-    );
+    repeat(3, minmax(0, 1fr));
 
   gap: 8px;
 
@@ -1013,18 +1042,20 @@ h3 {
 
 
 /* =========================================================
-   BMI / BMR / PROTEIN RECOMMENDATION
-   3개 한 줄
+   BMI / BMR / RECOMMENDED PROTEIN
 ========================================================= */
 
 .body-analysis {
   display: grid;
 
+  /*
+    추천 단백질 칸을 더 넓게.
+  */
+
   grid-template-columns:
-    repeat(
-      3,
-      minmax(0, 1fr)
-    );
+    minmax(0, 0.8fr)
+    minmax(0, 0.9fr)
+    minmax(0, 1.3fr);
 
   gap: 8px;
 
@@ -1036,6 +1067,8 @@ h3 {
 
   padding: 15px 10px;
 
+  overflow: hidden;
+
   background: var(--surface-soft);
 
   border-radius: var(--radius-small);
@@ -1044,14 +1077,12 @@ h3 {
 .analysis-item span {
   display: block;
 
-  min-height: 14px;
-
   margin-bottom: 7px;
 
   color: var(--text-secondary);
 
   font-size: 9px;
-  line-height: 1.35;
+  line-height: 1.25;
 }
 
 .analysis-item strong {
@@ -1073,19 +1104,52 @@ h3 {
   color: var(--text-secondary);
 
   font-size: 8px;
-  line-height: 1.35;
+  line-height: 1.3;
 }
 
+
+/*
+  추천 단백질 카드
+*/
+
 .protein-recommendation {
-  grid-column: auto;
+  min-width: 0;
 
   padding: 15px 10px;
 }
 
-.protein-recommendation strong {
-  font-size: 17px;
+.protein-recommendation span {
+  white-space: nowrap;
 
-  letter-spacing: -0.05em;
+  font-size: 8.5px;
+}
+
+.protein-recommendation strong {
+  font-size: 18px;
+
+  letter-spacing: -0.045em;
+
+  white-space: nowrap;
+}
+
+
+/*
+  HTML에 기존 설명이
+  "현재 체중 기준 · 설정 목표와 별개"
+  로 들어 있더라도,
+  모바일 카드 안에서는 JS 값과 무관한
+  긴 문장이 깨지지 않게 숨기고
+  CSS로 짧은 설명을 보여준다.
+*/
+
+.protein-recommendation small {
+  font-size: 0;
+}
+
+.protein-recommendation small::after {
+  content: "현재 체중 기준";
+
+  font-size: 8px;
 }
 
 
@@ -1095,7 +1159,9 @@ h3 {
 
 .segmented-control {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+
+  grid-template-columns:
+    repeat(4, 1fr);
 
   gap: 0;
 
@@ -1174,7 +1240,7 @@ h3 {
 
 
 /* =========================================================
-   PROFILE NOTE
+   PROFILE
 ========================================================= */
 
 .profile-note {
@@ -1274,8 +1340,7 @@ dialog::backdrop {
   border: 0;
   border-radius: 50%;
 
-  background:
-    var(--surface-soft);
+  background: var(--surface-soft);
 
   font-size: 23px;
   font-weight: 300;
@@ -1296,8 +1361,7 @@ dialog::backdrop {
 
 .field > span,
 .search-box > span {
-  color:
-    var(--text-secondary);
+  color: var(--text-secondary);
 
   font-size: 11px;
   font-weight: 600;
@@ -1310,9 +1374,7 @@ select {
 
   padding: 0 14px;
 
-  border:
-    1px solid var(--line);
-
+  border: 1px solid var(--line);
   border-radius: 13px;
 
   outline: none;
@@ -1359,11 +1421,9 @@ select:focus {
   right: 15px;
   top: 50%;
 
-  transform:
-    translateY(-50%);
+  transform: translateY(-50%);
 
-  color:
-    var(--text-secondary);
+  color: var(--text-secondary);
 
   font-size: 12px;
 }
@@ -1397,8 +1457,7 @@ select:focus {
 .search-box input {
   border-color: transparent;
 
-  background:
-    var(--surface-soft);
+  background: var(--surface-soft);
 }
 
 
@@ -1436,8 +1495,7 @@ select:focus {
   border: 0;
   border-radius: 14px;
 
-  background:
-    var(--surface-soft);
+  background: var(--surface-soft);
 
   text-align: left;
 }
@@ -1456,8 +1514,7 @@ select:focus {
 }
 
 .food-result-info {
-  color:
-    var(--text-secondary);
+  color: var(--text-secondary);
 
   font-size: 10px;
 }
@@ -1471,14 +1528,14 @@ select:focus {
 
 .back-button {
   border: 0;
+
   background: transparent;
 
   padding: 0;
 
   margin-bottom: 24px;
 
-  color:
-    var(--text-secondary);
+  color: var(--text-secondary);
 
   font-size: 12px;
 }
@@ -1505,9 +1562,7 @@ select:focus {
 
   flex: 0 0 40px;
 
-  border:
-    1px solid var(--line);
-
+  border: 1px solid var(--line);
   border-radius: 50%;
 
   background: var(--surface);
@@ -1525,8 +1580,7 @@ select:focus {
 }
 
 .unit-display span {
-  color:
-    var(--text-secondary);
+  color: var(--text-secondary);
 
   font-size: 11px;
   font-weight: 600;
@@ -1540,9 +1594,7 @@ select:focus {
 
   padding: 0 14px;
 
-  border:
-    1px solid var(--line);
-
+  border: 1px solid var(--line);
   border-radius: 13px;
 
   font-size: 15px;
@@ -1562,8 +1614,7 @@ select:focus {
 .calculated-values > div {
   padding: 17px;
 
-  background:
-    var(--surface-soft);
+  background: var(--surface-soft);
 
   border-radius: 14px;
 }
@@ -1573,8 +1624,7 @@ select:focus {
 
   margin-bottom: 6px;
 
-  color:
-    var(--text-secondary);
+  color: var(--text-secondary);
 
   font-size: 10px;
 }
@@ -1598,16 +1648,16 @@ select:focus {
   }
 
   .calendar-card {
-    padding-left: 7px;
-    padding-right: 7px;
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
   .calendar-grid {
-    row-gap: 10px;
+    row-gap: 9px;
   }
 
   .calendar-day {
-    min-height: 58px;
+    min-height: 68px;
   }
 
   .calendar-ring {
@@ -1617,10 +1667,6 @@ select:focus {
     flex-basis: 36px;
   }
 
-  .calendar-ring::after {
-    inset: 3px;
-  }
-
   .calendar-ring-inner {
     width: 30px;
     height: 30px;
@@ -1628,10 +1674,12 @@ select:focus {
     font-size: 11px;
   }
 
-  .calendar-protein {
-    font-size: 7px;
+  .calendar-protein-grams {
+    font-size: 7.5px;
+  }
 
-    letter-spacing: -0.04em;
+  .calendar-protein-percent {
+    font-size: 6.5px;
   }
 
   .metric {
@@ -1645,10 +1693,9 @@ select:focus {
 
   .body-analysis {
     grid-template-columns:
-      repeat(
-        3,
-        minmax(0, 1fr)
-      );
+      minmax(0, 0.75fr)
+      minmax(0, 0.85fr)
+      minmax(0, 1.4fr);
 
     gap: 6px;
   }
@@ -1670,8 +1717,16 @@ select:focus {
     font-size: 7px;
   }
 
+  .protein-recommendation span {
+    font-size: 7.5px;
+  }
+
   .protein-recommendation strong {
-    font-size: 14px;
+    font-size: 16px;
+  }
+
+  .protein-recommendation small::after {
+    font-size: 7px;
   }
 
   .segmented-control button {
@@ -1697,17 +1752,15 @@ select:focus {
   .growth-summary,
   .growth-chart-section,
   .calendar-card {
-    border:
-      1px solid var(--line);
+    border: 1px solid var(--line);
   }
 
-  /*
-    데스크톱에서는 공간이 넉넉하므로
-    단백질 수치를 조금 더 읽기 쉽게.
-  */
-
-  .calendar-protein {
+  .calendar-protein-grams {
     font-size: 9px;
+  }
+
+  .calendar-protein-percent {
+    font-size: 8px;
   }
 }
 
@@ -1735,21 +1788,11 @@ select:focus {
 
   .bottom-nav {
     background:
-      rgba(
-        17,
-        17,
-        17,
-        0.94
-      );
+      rgba(17, 17, 17, 0.94);
   }
 
   dialog::backdrop {
     background:
-      rgba(
-        0,
-        0,
-        0,
-        0.58
-      );
+      rgba(0, 0, 0, 0.58);
   }
 }
